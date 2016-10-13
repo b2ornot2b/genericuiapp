@@ -3,7 +3,18 @@ import kivy
 kivy.require('1.0.6')
 from kivy.config import Config
 Config.set('kivy', 'keyboard_mode', 'dock')
-Config.set('kivy', 'keyboard_layout', 'b2kbd')
+
+import os.path
+import shutil
+b2kbd_json = os.path.join(kivy.kivy_data_dir, 'keyboards', 'b2kbd.json')
+if not os.path.exists(b2kbd_json):
+    try:
+        shutil.copyfileobj(open('b2kbd.json'), open(b2kbd_json, 'w'))
+        Config.set('kivy', 'keyboard_layout', 'b2kbd')
+    except IOError: 
+        pass
+
+
 print('Keyboard layout: {}'.format(Config.get('kivy', 'keyboard_layout')))
 
 __version__ = '0.1'
@@ -67,6 +78,8 @@ def android_share(to=None, subject=None, body=None, attachment=None):
 import weakref
 from kivy.uix.vkeyboard import VKeyboard
 from kivy.properties import ListProperty
+from kivy.clock import Clock
+import functools
 
 class Keyboard(VKeyboard):
     orientation = None
@@ -75,7 +88,11 @@ class Keyboard(VKeyboard):
     def __init__(self, **kwargs):
         Keyboard.__instance_ref = weakref.ref(self)
         super(Keyboard, self).__init__(**kwargs)
-        Logger.info('size {}x{}'.format(self.width, self.height))
+
+        win = self.get_root_window()
+        if win:
+            orientation = 'portrait' if win.size[0] < win.size[1] else 'landscape'
+            Clock.schedule_once(functools.partial(Keyboard.Resize, orientation, win.size), 0)
 
     #def refresh(self, force=False):
     #    super(Keyboard, self).refresh(force)
@@ -85,10 +102,11 @@ class Keyboard(VKeyboard):
         if cls.__instance_ref:
             keyboard = cls.__instance_ref()
             if keyboard:
-                keyboard.height = 400 if orientation == 'portrait' else 200
-                keyboard.width = size[0]
+                keyboard.height = 500 if orientation == 'portrait' else 200
                 Logger.info('Keyboard.Resize {} {} => {}x{}'.format(orientation, size, keyboard.width, keyboard.height))
-                keyboard.refresh()
+                keyboard.setup_mode()
+                keyboard.refresh(True)
+
 
 ### START genericui.py
 
