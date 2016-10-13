@@ -1,6 +1,8 @@
 from __future__ import print_function
 import kivy
 kivy.require('1.0.6')
+from kivy.config import Config
+Config.set('kivy', 'keyboard_mode', 'dock')
 
 __version__ = '0.1'
 
@@ -74,11 +76,14 @@ class ScrollableLabel(ScrollView):
     text = StringProperty('') 
 
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.textinput import TextInput
 import time
 import itertools
 class GenericUI(FloatLayout):
     def __init__(self, *a, **k):
         super(GenericUI, self).__init__(*a, **k)
+        ti = TextInput()
+        self.add_widget(ti)
 
 ### START genericuiapp.py
 class GenericUIApp(App):
