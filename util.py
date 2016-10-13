@@ -4,6 +4,7 @@ from kivy.logger import Logger
 from kivy.app import App
 
 import threading
+import traceback
 
 from kivy.logger import Logger
 def _pre_logger(*a, **k): Logger.debug('{} {}'.format(a, k))
@@ -22,7 +23,8 @@ def get_sdcard_path():
         from jnius import autoclass
         Environment = autoclass('android.os.Environment')
         sdpath = Environment.get_running_app().getExternalStorageDirectory()
-    except:
+    except Exception:
+        print('get_sdcard_path: {}'.format(traceback.format_exc()))
         sdpath = App.get_running_app().user_data_dir
     print('SDCard path {}'.format(sdpath))
     return sdpath

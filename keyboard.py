@@ -1,5 +1,23 @@
 from __future__ import print_function
 
+import kivy
+import os.path
+import shutil
+
+def keyboard_init():
+    from kivy.config import Config
+    Config.set('kivy', 'keyboard_mode', 'dock')
+
+    b2kbd_json = os.path.join(kivy.kivy_data_dir, 'keyboards', 'b2kbd.json')
+    if not os.path.exists(b2kbd_json):
+        try:
+            shutil.copyfileobj(open('b2kbd.json'), open(b2kbd_json, 'w'))
+            Config.set('kivy', 'keyboard_layout', 'b2kbd')
+        except IOError: 
+            pass
+    print('Keyboard layout: {}'.format(Config.get('kivy', 'keyboard_layout')))
+
+
 from kivy.uix.vkeyboard import VKeyboard
 from kivy.properties import ListProperty
 from kivy.clock import Clock

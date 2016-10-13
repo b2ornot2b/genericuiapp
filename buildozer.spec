@@ -13,7 +13,7 @@ package.domain = org.b2ornot2b
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,tgz,md5,json
+source.include_exts = py,png,jpg,kv,atlas,tgz,md5,json,txt
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png
@@ -106,7 +106,7 @@ android.sdk = 21
 #android.p4a_dir =
 
 # (list) python-for-android whitelist
-#android.p4a_whitelist =
+# android.p4a_whitelist = tarfile
 
 # (bool) If True, then skip trying to update the Android sdk
 # This can be useful to avoid excess Internet downloads or save time
