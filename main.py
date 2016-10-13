@@ -3,9 +3,12 @@ import kivy
 kivy.require('1.0.6')
 from kivy.config import Config
 Config.set('kivy', 'keyboard_mode', 'dock')
+Config.set('kivy', 'keyboard_layout', 'b2kbd')
+print('Keyboard layout: {}'.format(Config.get('kivy', 'keyboard_layout')))
 
 __version__ = '0.1'
 
+from kivy.logger import Logger
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.properties import ObjectProperty
@@ -58,6 +61,35 @@ def android_share(to=None, subject=None, body=None, attachment=None):
     currentActivity = cast('android.app.Activity', PythonActivity.mActivity)
     currentActivity.startActivity(intent)
 
+
+### START keyboard.py
+
+import weakref
+from kivy.uix.vkeyboard import VKeyboard
+from kivy.properties import ListProperty
+
+class Keyboard(VKeyboard):
+    orientation = None
+    __instance_ref = None
+    margin_hint = ListProperty([.05, .01, .05, .01])
+    def __init__(self, **kwargs):
+        Keyboard.__instance_ref = weakref.ref(self)
+        super(Keyboard, self).__init__(**kwargs)
+        Logger.info('size {}x{}'.format(self.width, self.height))
+
+    #def refresh(self, force=False):
+    #    super(Keyboard, self).refresh(force)
+
+    @classmethod
+    def Resize(cls, orientation, size, *args):
+        if cls.__instance_ref:
+            keyboard = cls.__instance_ref()
+            if keyboard:
+                keyboard.height = 400 if orientation == 'portrait' else 200
+                keyboard.width = size[0]
+                Logger.info('Keyboard.Resize {} {} => {}x{}'.format(orientation, size, keyboard.width, keyboard.height))
+                keyboard.refresh()
+
 ### START genericui.py
 
 from kivy.uix.scrollview import ScrollView
@@ -77,6 +109,10 @@ class ScrollableLabel(ScrollView):
 
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.textinput import TextInput
+from kivy.core.window import Window
+from kivy.clock import Clock
+import functools
+
 import time
 import itertools
 class GenericUI(FloatLayout):
@@ -85,10 +121,20 @@ class GenericUI(FloatLayout):
         ti = TextInput()
         self.add_widget(ti)
 
+    def on_size(self, w, size):
+        orientation = 'portrait' if size[0] < size[1] else 'landscape'
+        Logger.info('GenericUI.on_size {} => {}'.format(orientation, size))
+        Clock.schedule_once(functools.partial(Keyboard.Resize, orientation, size), 0)
+
+
 ### START genericuiapp.py
 class GenericUIApp(App):
     def build(self):
         return GenericUI(info="value")
+
+    def on_start(self):
+        win = self.root.get_root_window()
+        win.set_vkeyboard_class(Keyboard)
 
     def on_pause(self):
         print('on_pause')
