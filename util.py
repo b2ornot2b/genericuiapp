@@ -22,7 +22,7 @@ def get_sdcard_path():
     try:
         from jnius import autoclass
         Environment = autoclass('android.os.Environment')
-        sdpath = Environment.get_running_app().getExternalStorageDirectory()
+        sdpath = Environment.getExternalStorageDirectory().getAbsolutePath()
     except Exception:
         print('get_sdcard_path: {}'.format(traceback.format_exc()))
         sdpath = App.get_running_app().user_data_dir
