@@ -33,10 +33,10 @@ bumpversion:
 	echo $$(( $$(cat version.txt) + 1 )) > version.txt
 	echo "Bumped  Version: $$(cat version.txt)"
 
-installapk: copy2host
+installapk: copyapk2host
 	ssh b2@192.168.1.13 "/home/b2/Android/Sdk/platform-tools/adb install -r  /tmp/$(APK)"
 
-installpk: copy2host
+installpk: copypk2host
 	ssh b2@192.168.1.13 "/home/b2/Android/Sdk/platform-tools/adb push /tmp/$(UPDATEPK) /mnt/sdcard/$(UPDATEPK)"
 
 .PHONY: clean
