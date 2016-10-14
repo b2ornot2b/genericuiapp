@@ -10,9 +10,11 @@ TARGETS := bin/$(APK) bin/$(UPDATEPK)
 all: $(TARGETS)
 
 bin/GenericUI-0.1-debug.apk:  buildozer.spec version.txt $(SRCS)
+	-mkdir bin
 	buildozer android debug
 
 bin/gupdate.pk:	version.txt $(SRCS)
+	-mkdir bin
 	tar cvf $@ version.txt $(SRCS) b2kbd.json
 
 .PHONY: copy2host copyapk2host copypk2host bumpversion installapk installpk
