@@ -5,6 +5,7 @@ import os.path
 import shutil
 
 def keyboard_init():
+    print('keyboard_init')
     from kivy.config import Config
     Config.set('kivy', 'keyboard_mode', 'dock')
 

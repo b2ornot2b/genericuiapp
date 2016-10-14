@@ -2,8 +2,12 @@ from __future__ import print_function
 
 __version__ = '0.1'
 
+if __name__ in ('__main__', '__android__'):
+    from kivy.config import Config
+    Config.set('kivy', 'keyboard_mode', 'dock')
+
 import kivy
-kivy.require('1.0.6')
+kivy.require('1.9.1')
 
 from keyboard import keyboard_init
 if __name__ in ('__main__', '__android__'):
