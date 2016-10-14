@@ -34,6 +34,7 @@ class GenericUIApp(App):
 
         win = self.root.get_root_window()
         win.set_vkeyboard_class(Keyboard)
+        win.softinput_mode = 'below_target'
 
         win.bind(on_key_down=self.on_key_down)
         # self.__base_widget.on_barcode_scan = (lambda *a, **k: True)

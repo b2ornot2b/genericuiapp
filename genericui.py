@@ -43,6 +43,8 @@ class GenericUI(ScreenManager):
         #sv = ScrollView(size_hint=(1, None), size=(Window.width, Window.height))
         bl = BoxLayout(orientation="vertical", size_hint_y=None)
         btn = Button(text="OK", size_hint=(1, None), on_press=functools.partial(self.button_pressed, bl))
+        ti = TextInput(size_hint=(1, None))
+        bl.add_widget(ti)
 
         #cam = Camera(play=True)
         #home.add_widget(cam)

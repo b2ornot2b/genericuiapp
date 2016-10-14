@@ -8,14 +8,20 @@ def keyboard_init():
     from kivy.config import Config
     Config.set('kivy', 'keyboard_mode', 'dock')
 
-    b2kbd_json = os.path.join(kivy.kivy_data_dir, 'keyboards', 'b2kbd.json')
+    kbd = 'b2simplekbd'
+    kbd_json = '{}.json'.format(kbd)
+    b2kbd_json = os.path.join(kivy.kivy_data_dir, 'keyboards', kbd_json)
     if not os.path.exists(b2kbd_json):
         try:
-            shutil.copyfileobj(open('b2kbd.json'), open(b2kbd_json, 'w'))
-            Config.set('kivy', 'keyboard_layout', 'b2kbd')
+            shutil.copyfileobj(open(kbd_json), open(b2kbd_json, 'w'))
+            Config.set('kivy', 'keyboard_layout', kbd)
         except IOError: 
             pass
     print('Keyboard layout: {}'.format(Config.get('kivy', 'keyboard_layout')))
+    #from kivy.core.window import Window
+    #try: print('softinput_mode {}'.format(Window.softinput_mode))
+    #except: pass
+    #Window.softinput_mode = 'below_target'
 
 
 from kivy.uix.vkeyboard import VKeyboard
