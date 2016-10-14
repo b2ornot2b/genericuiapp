@@ -13,9 +13,13 @@ class GenericUI(FloatLayout):
         super(GenericUI, self).__init__(*a, **k)
         ti = TextInput()
         self.add_widget(ti)
+        self.bind(on_barcode_scan=self.on_barcode_scan)
 
     def on_size(self, w, size):
         orientation = 'portrait' if size[0] < size[1] else 'landscape'
         Logger.info('GenericUI.on_size {} => {}'.format(orientation, size))
         Clock.schedule_once(functools.partial(Keyboard.Resize, orientation, size), 0)
+
+    def on_barcode_scan(self, barcode, *args):
+        Logger.info('GenericUI.on_barcode_scan {}'.format(barcode))
 

@@ -15,6 +15,8 @@ class GenericUIApp(App):
     def on_start(self):
         win = self.root.get_root_window()
         win.set_vkeyboard_class(Keyboard)
+        win.on_barcode_scan = (lambda *a, **k: False)
+        win.register_event_type('on_barcode_scan')
         self.__complete_key_input_event = None
         self.__key_input = ''
         win.bind(on_key_down=self.on_key_down)
@@ -48,3 +50,5 @@ class GenericUIApp(App):
 
     def on_barcode_scan(self, barcode):
         Logger.info('on_barcode_scan {}'.format(barcode))
+        win = self.root.get_root_window()
+        win.dispatch('on_barcode_scan', barcode)
