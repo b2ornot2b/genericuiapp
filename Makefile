@@ -5,7 +5,6 @@ UPDATEPK := gupdate.pk
 SRCS := $(wildcard *.py)
 TARGETS := bin/$(APK) bin/$(UPDATEPK)
 
-VERSION := $(shell cat version.txt)
 
 .PHONY: all
 all: $(TARGETS)
@@ -28,7 +27,9 @@ copypk2host: bin/$(UPDATEPK)
 
 
 bumpversion:
-	 echo $$(( $(VERSION) + 1 )) > version.txt
+	echo "Current Version: $$(cat version.txt)"
+	echo $$(( $$(cat version.txt) + 1 )) > version.txt
+	echo "Bumped  Version: $$(cat version.txt)"
 
 installapk: copy2host
 	ssh b2@192.168.1.13 "/home/b2/Android/Sdk/platform-tools/adb install -r  /tmp/$(APK)"
