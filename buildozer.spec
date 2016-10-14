@@ -38,7 +38,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma seperated e.g. requirements = sqlite3,kivy
-requirements = sqlite3,kivy,datetime,Flask,plyer
+requirements = sqlite3,kivy==1.9.1,datetime,Flask,plyer
 # ,ecdsa,paramiko,ws4py
 
 # (str) Custom source folders for requirements
