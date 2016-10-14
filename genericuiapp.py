@@ -3,7 +3,13 @@ from __future__ import print_function
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.logger import Logger
+import kivy.modules.webdebugger
 from kivy.modules.webdebugger import start as webdebugger_start
+from kivy.modules._webdebugger import FlaskThread as WebDebuggerFlaskThread, app as WebDebuggerApp
+def FlaskThreadRun(self, *a, **k):
+    Clock.schedule_interval(self.dump_metrics, .1)
+    WebDebuggerApp.run(host="0.0.0.0", debug=True, use_debugger=True, use_reloader=False)
+WebDebuggerFlaskThread.run = FlaskThreadRun
 
 from updater import update
 from genericui import GenericUI
@@ -14,7 +20,7 @@ import functools
 
 class GenericUIApp(App):
     def build(self):
-        webdebugger_start()
+        webdebugger_start(None, self)
         self.__base_widget = GenericUI(info="value")
         return self.__base_widget
 
