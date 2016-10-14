@@ -10,7 +10,7 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.logger import Logger
 import functools
-import kivy.modules.webdebugger
+from kivy.modules.webdebugger import start as webdebugger_start
 
 from keyboard import Keyboard
 from kivytoast import toast

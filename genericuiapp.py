@@ -3,6 +3,7 @@ from __future__ import print_function
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.logger import Logger
+from kivy.modules.webdebugger import start as webdebugger_start
 
 from updater import update
 from genericui import GenericUI
@@ -13,6 +14,7 @@ import functools
 
 class GenericUIApp(App):
     def build(self):
+        webdebugger_start()
         self.__base_widget = GenericUI(info="value")
         return self.__base_widget
 
