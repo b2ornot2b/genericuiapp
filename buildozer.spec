@@ -13,7 +13,7 @@ package.domain = org.b2ornot2b
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,tgz,md5,json,txt
+source.include_exts = py,png,jpg,kv,atlas,tgz,md5,json,txt,ini
 
 # (list) List of inclusions using pattern matching
 #source.include_patterns = assets/*,images/*.png

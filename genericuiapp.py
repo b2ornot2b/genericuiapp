@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from kivy.app import App
 
-from updater import update_from_sdcard
+from updater import update
 from genericui import GenericUI
 from keyboard import Keyboard
 
@@ -14,7 +14,7 @@ class GenericUIApp(App):
         win = self.root.get_root_window()
         win.set_vkeyboard_class(Keyboard)
         try:
-            update_from_sdcard()
+            update()
         except Exception:
             import traceback
             traceback.print_exc()
