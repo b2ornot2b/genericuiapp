@@ -38,7 +38,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma seperated e.g. requirements = sqlite3,kivy
-requirements = sqlite3,kivy==master,datetime,Flask,plyer,requests,apsw,pil,twisted,pyopenssl,boost,numpy,png,zeroconf,txWS,opencv,pyyaml,requests,sqlalchemy,vispy,networkx,audiostream,cryptography,cymunk,decorator,leveldb,plyvel
+requirements = sqlite3,kivy==master,datetime,Flask,plyer,requests,apsw,pil,twisted,pyopenssl,boost,numpy,png,zeroconf,txWS,opencv,pyyaml,requests,sqlalchemy,vispy,networkx,audiostream,cymunk,decorator,leveldb,plyvel
 # ,ecdsa,paramiko,ws4py
 
 # (str) Custom source folders for requirements
