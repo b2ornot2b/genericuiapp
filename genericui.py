@@ -5,9 +5,12 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.logger import Logger
 import functools
+import kivy.modules.webdebugger
 
 from keyboard import Keyboard
 from kivytoast import toast
@@ -37,10 +40,12 @@ class GenericUI(ScreenManager):
 
     def get_home_screen(self):
         home = Screen(title="Home")
-        bl = BoxLayout(orientation="vertical")
+        sv = ScrollView(size_hint=(1, None), size=(Window.width, Window.height))
+        bl = BoxLayout(orientation="vertical", size_hint_y=None)
         btn = Button(text="OK", size_hint=(1, None), on_press=functools.partial(self.button_pressed, bl))
         bl.add_widget(btn)
-        home.add_widget(bl)
+        sv.add_widget(bl)
+        home.add_widget(sv)
         return home
 
     def button_pressed(self, home, *args):
