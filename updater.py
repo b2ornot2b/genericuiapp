@@ -8,7 +8,8 @@ from util import get_sdcard_path
 import tarfile
 from zipfile import ZipFile
 
-from androidtoast import toast
+# from androidtoast import toast
+from kivytoast import toast
 
 import sys
 import urllib2
