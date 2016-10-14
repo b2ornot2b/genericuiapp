@@ -31,7 +31,7 @@ def update_from_sdcard(filename=None, fileobj=None):
         print('extracting update...')
         tar.extractall()
         print('extracting update... done.')
-        toast("App updated to version {}. Restarting...".format(update_version), True)
+        toast("App updated to version {}. Restarting...".format(update_version), False)
         Clock.schedule_once(restart, 5)
 
 def update():
