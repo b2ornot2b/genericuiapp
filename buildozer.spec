@@ -38,7 +38,7 @@ version = 0.1
 
 # (list) Application requirements
 # comma seperated e.g. requirements = sqlite3,kivy
-requirements = sqlite3,kivy==master,datetime,Flask,plyer,apsw,requests,pil,leveldb,levelpy
+requirements = sqlite3,kivy==master,datetime,Flask,plyer,apsw,requests,pil,leveldb,levelpy,sqlalchemy
 #,networkx
 # ,plyer,requests,apsw,pil,twisted,pyopenssl,boost,numpy,png,zeroconf,txWS,opencv,pyyaml,requests,sqlalchemy,vispy,networkx,audiostream,cymunk,decorator,leveldb,plyvel
 # ,ecdsa,paramiko,ws4py
