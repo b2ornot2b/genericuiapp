@@ -35,8 +35,8 @@ class GenericUI(ScreenManager):
 
     def create_ui(self):
         self.formbuilder = FormBuilder(self)
-        # self.formbuilder.reload()
         self.add_widget(self.formbuilder)
+
         #self.sm = ScreenManager()
         #self.add_widget(self.get_home_screen())
         #self.add_widget(self.sm)
@@ -47,7 +47,7 @@ class GenericUI(ScreenManager):
         home = Screen(title="Home")
         #sv = ScrollView(size_hint=(1, None), size=(Window.width, Window.height))
         bl = BoxLayout(orientation="vertical", size_hint_y=None)
-        btn = Button(text="OK", size_hint=(1, None), on_press=functools.partial(self.button_pressed, bl))
+        btn = Button(text="OK", height=300, size_hint=(1, None), on_press=functools.partial(self.button_pressed, bl))
         ti = TextInput(size_hint=(1, None))
         bl.add_widget(ti)
 

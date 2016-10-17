@@ -28,7 +28,7 @@ class FormBuilder(Screen):
     def create_ui(self):
         main_layout = BoxLayout(orientation='vertical', size_hint_y=None, padding=10)
         for form in self.config:
-            btn = Button(text=form, size_hint=(1, None), on_press=functools.partial(self.main_btn_pressed, form))
+            btn = Button(text=form, height=250, size_hint=(1, None), on_press=functools.partial(self.main_btn_pressed, form))
                 
             main_layout.add_widget(btn)
         self.add_widget(main_layout)
@@ -45,11 +45,13 @@ class FormBuilder(Screen):
         screen = Screen(name=form, size_hint=(1,1))
         accordion = Accordion(orientation="vertical", size_hint=(1,1))
         for tab in self.config[form]:
-            item = AccordionItem(title=tab)
+            item = AccordionItem(title=tab,
+                              background_normal="atlas://data/images/defaulttheme/modalview-background")
             self.create_form_entries(item, form, tab)
             accordion.add_widget(item)
             
-        barcode_item = AccordionItem(title="Barcode")
+        barcode_item = AccordionItem(title="Barcode",
+                              background_normal="atlas://data/images/defaulttheme/modalview-background")
         self.create_barcode_widget(barcode_item)
         accordion.add_widget(barcode_item)
         screen.add_widget(accordion)
@@ -73,14 +75,16 @@ class FormBuilder(Screen):
         layout = GridLayout(cols=2, size_hint=(1,1))
         for field in self.config[form][tab]:
             entry = self.config[form][tab][field]
-            if entry["lock"]:
-                lbl = ToggleButton(text=field)
+            if True: # entry["lock"]:
+                lbl = ToggleButton(text=field,
+                                   background_normal="atlas://data/images/defaulttheme/button_pressed",
+                                   background_down="atlas://data/images/defaulttheme/button")
                 lbl.bind(state=functools.partial(self.locked_btn_pressed, form, tab, field, entry))
             else:
                 lbl = Label(text=field)
             e = Label()
             if entry["type"].lower() == "text":
-                e = TextInput(size_hint=(1, None))
+                e = TextInput(size_hint=(1, 1))
                 e.bind(text=functools.partial(self.data_changed, form, tab, field, entry))
             elif entry["type"].lower() == "dropdown":
                 e = Spinner(size_hint=(1, None), values=entry["values"])
@@ -99,20 +103,12 @@ class FormBuilder(Screen):
         Logger.info("data_changed {} {}".format(entry, args))
 
         
-        texts = [ e["widget"].text for field,e in self.config[form][tab].items()]
-        Logger.info("texts: {}".format(texts))
-        texts = [ t for t in texts if len(t) ]
-        texts = ' '.join(texts)
-        entry["root"].title = "{}: {}".format(entry["root_title"], texts)
+        texts = ( e["widget"].text for field,e in self.config[form][tab].items())
+        texts = ( t for t in texts if len(t) )
+        texts = u' '.join(texts)
+        Logger.info(u"texts: {}".format(texts))
+        entry["root"].title = u"{}: {}".format(entry["root_title"], texts)
             
-        #for w in widgets:
-        #    Logger.info("DATA: {}".format(w))
-        #    try: Logger.info("DATA TEXT: {}".format(w.text))
-        #    except:
-        #        import traceback
-        #        traceback.print_exc()
-            
-
     def locked_btn_pressed(self, form, tab, field, entry, *args):
         Logger.info('locked_btn_pressed {} {} {} {}'.format(form, tab, field, entry, args))
         entry["widget"].disabled = entry["lable_widget"].state == "down"
