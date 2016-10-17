@@ -14,6 +14,7 @@ import functools
 
 from keyboard import Keyboard
 from kivytoast import toast
+from formbuilder import FormBuilder
 
 class GenericUI(ScreenManager):
     def __init__(self, *a, **k):
@@ -30,10 +31,14 @@ class GenericUI(ScreenManager):
         Logger.info('GenericUI.on_barcode_scan {}'.format(barcode))
         if len(barcode):
             toast("Scanned {}".format(barcode))
+            self.formbuilder.on_barcode_scanned(barcode)
 
     def create_ui(self):
+        self.formbuilder = FormBuilder(self)
+        # self.formbuilder.reload()
+        self.add_widget(self.formbuilder)
         #self.sm = ScreenManager()
-        self.add_widget(self.get_home_screen())
+        #self.add_widget(self.get_home_screen())
         #self.add_widget(self.sm)
         #ti = Input()
         #self.add_widget(ti)

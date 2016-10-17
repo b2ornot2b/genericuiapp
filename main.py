@@ -17,5 +17,5 @@ import threading
 import ishell
 from genericuiapp import GenericUIApp
 if __name__ in ('__main__', '__android__'):
-    threading.Thread(target=ishell.listen).start()
+    # threading.Thread(target=ishell.listen).start()
     GenericUIApp().run()

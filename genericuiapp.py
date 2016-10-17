@@ -5,13 +5,13 @@ from kivy.core.window import Window
 # Window.softinput_mode = 'below_target'
 from kivy.clock import Clock
 from kivy.logger import Logger
-import kivy.modules.webdebugger
-from kivy.modules.webdebugger import start as webdebugger_start
-from kivy.modules._webdebugger import FlaskThread as WebDebuggerFlaskThread, app as WebDebuggerApp
-def FlaskThreadRun(self, *a, **k):
-    Clock.schedule_interval(self.dump_metrics, .1)
-    WebDebuggerApp.run(host="0.0.0.0", debug=True, use_debugger=True, use_reloader=False)
-WebDebuggerFlaskThread.run = FlaskThreadRun
+#import kivy.modules.webdebugger
+#from kivy.modules.webdebugger import start as webdebugger_start
+#from kivy.modules._webdebugger import FlaskThread as WebDebuggerFlaskThread, app as WebDebuggerApp
+#def FlaskThreadRun(self, *a, **k):
+#    Clock.schedule_interval(self.dump_metrics, .1)
+#    WebDebuggerApp.run(host="0.0.0.0", debug=True, use_debugger=True, use_reloader=False)
+#WebDebuggerFlaskThread.run = FlaskThreadRun
 
 from updater import update
 from genericui import GenericUI
@@ -22,7 +22,7 @@ import functools
 
 class GenericUIApp(App):
     def build(self):
-        webdebugger_start(None, self)
+        # webdebugger_start(None, self)
         self.__base_widget = GenericUI(info="value")
         return self.__base_widget
 
@@ -38,7 +38,7 @@ class GenericUIApp(App):
         win.set_vkeyboard_class(Keyboard)
         #print("root window {} {}".format(win, win.softinput_mode))
         win.softinput_mode = 'pan'
-        #win.bind(on_key_down=self.on_key_down)
+        win.bind(on_key_down=self.on_key_down)
         # self.__base_widget.on_barcode_scan = (lambda *a, **k: True)
         # self.__base_widget.register_event_type('on_barcode_scan')
         self.__complete_key_input_event = None

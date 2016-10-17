@@ -15,7 +15,7 @@ bin/GenericUI-0.1-debug.apk:  buildozer.spec version.txt $(SRCS)
 
 bin/gupdate.pk:	version.txt $(SRCS)
 	-mkdir bin
-	tar cvf $@ version.txt $(SRCS) *.ini *.json
+	tar cvf $@ version.txt $(SRCS) *.ini *.json *.csv
 
 .PHONY: copy2host copyapk2host copypk2host bumpversion installapk installpk
 

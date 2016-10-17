@@ -1,0 +1,196 @@
+{
+    "HGSL":{
+        "Location":{
+            "Entity":{
+                "values":[
+                    "HGSL",
+                    "ISPL",
+                    "ISPD"
+                ],
+                "lock":true,
+                "type":"Dropdown",
+                "comments":"",
+                "others":false
+            },
+            "Asset Owner":{
+                "values":[
+                    "Owned",
+                    "Vendor",
+                    "Client"
+                ],
+                "lock":true,
+                "type":"Dropdown",
+                "comments":"",
+                "others":false
+            },
+            "City/Building":{
+                "values":[
+                    "Bangalore \u2013 HGS House",
+                    "Bangalore - GHS",
+                    "Bangalore - Chambers 1",
+                    "Bangalore - Chambers 2",
+                    "Bangalore - Chamundi",
+                    "Bangalore - NTP",
+                    "Bangalore \u2013\n Global Village-SEZ",
+                    "Bangalore - Pritech",
+                    "Bangalore - Mereside",
+                    "Mangalore",
+                    "Mysore",
+                    "Chennai - JTP",
+                    "Nagercoil",
+                    "Hyderabad - VGT",
+                    "Hyderabad \u2013 BT",
+                    "Hyderabad \u2013 DLF",
+                    "Guntur",
+                    "Mumbai - Vashi",
+                    "Mumbai - Andheri",
+                    "Siliguri",
+                    "Durgapur -1",
+                    "Durgapur \u2013 2",
+                    "Raipur",
+                    "Indore",
+                    "Noida",
+                    "Pune"
+                ],
+                "lock":true,
+                "type":"Dropdown",
+                "comments":"",
+                "others":false
+            },
+            "Area":{
+                "values":[
+                    "Others",
+                    "Closed Cabin",
+                    "Open Cabin",
+                    "Open Hall",
+                    "Security",
+                    "Store",
+                    "Walkway",
+                    "Parking",
+                    "Reception",
+                    "Interview Room",
+                    "Training Room"
+                ],
+                "lock":true,
+                "type":"Dropdown",
+                "comments":"",
+                "others":true
+            },
+            "Floor":{
+                "values":[
+                    "Others",
+                    "Basement",
+                    "Ground",
+                    "1st Floor",
+                    "2nd Floor",
+                    "3rd Floor",
+                    "4th Floor",
+                    "5th Floor",
+                    "6th Floor"
+                ],
+                "lock":true,
+                "type":"Dropdown",
+                "comments":"",
+                "others":true
+            }
+        },
+        "Asset":{
+            "Asset Group":{
+                "values":[
+                    "Others",
+                    "Computer Hardware",
+                    "Office Equipment",
+                    "Furniture & Fixtures"
+                ],
+                "lock":true,
+                "type":"Dropdown",
+                "comments":"",
+                "others":true
+            },
+            "Asset Name":{
+                "values":[],
+                "lock":true,
+                "type":"Text",
+                "comments":"Need word suggestion within words entered before",
+                "others":false
+            },
+            "Asset Description":{
+                "values":[],
+                "lock":true,
+                "type":"Text",
+                "comments":"Need word suggestion within words entered before",
+                "others":false
+            }
+        },
+        "IT Asset":{
+            "Asset Group":{
+                "values":[
+                    "Others",
+                    "Computer Hardware",
+                    "Office Equipment",
+                    "Furniture & Fixtures"
+                ],
+                "lock":true,
+                "type":"Dropdown",
+                "comments":"",
+                "others":true
+            },
+            "Asset Name":{
+                "values":[],
+                "lock":true,
+                "type":"Text",
+                "comments":"Need word suggestion within words entered before",
+                "others":false
+            },
+            "Asset Description":{
+                "values":[],
+                "lock":true,
+                "type":"Text",
+                "comments":"Need word suggestion within words entered before",
+                "others":false
+            },
+            "WorkStation No":{
+                "values":[],
+                "lock":false,
+                "type":"Text",
+                "comments":"",
+                "others":false
+            },
+            "Asset Manufacturer":{
+                "values":[],
+                "lock":true,
+                "type":"Text",
+                "comments":"",
+                "others":false
+            },
+            "Asset Model":{
+                "values":[],
+                "lock":false,
+                "type":"Text",
+                "comments":"",
+                "others":false
+            },
+            "Asset Manufacturer Serial Number":{
+                "values":[],
+                "lock":false,
+                "type":"Text & Barcode",
+                "comments":"",
+                "others":false
+            },
+            "Employee Number":{
+                "values":[],
+                "lock":false,
+                "type":"Text",
+                "comments":"Vibrate on submit and pop-up saying Submitted",
+                "others":false
+            },
+            "Asset Barcode Picture":{
+                "values":[],
+                "lock":false,
+                "type":"Camera",
+                "comments":"Keyboard in All Caps with Numbers on top",
+                "others":false
+            }
+        }
+    }
+}
