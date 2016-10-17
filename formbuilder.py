@@ -23,6 +23,7 @@ class FormBuilder(Screen):
         super(FormBuilder, self).__init__(*a, **k)
         self.screen_manager = sm
         self.reload()
+        self.barcode_widgets = [ None, None ]
         self.create_ui()
 
     def create_ui(self):
@@ -63,12 +64,51 @@ class FormBuilder(Screen):
 
     def create_barcode_widget(self, root):
         Logger.info('create_barcode_widget')
-        self.barcode_widget_lbl = lbl = Label(text="")
-        root.add_widget(lbl)
+        layout = GridLayout(cols=2, size_hint=(1,1))
+        for i, text in enumerate([ 'Barcode start', 'Barcode stop' ]):
+            layout.add_widget(Label(text=text))
+            self.barcode_widgets[i] = e = TextInput(text="", size_hint=(1, 1))
+            e.bind(text=functools.partial(self.barcode_changed, i))
+            layout.add_widget(e)
+
+        self.clear_btn = Button(text="Clear", size_hint=(1,1,))
+        self.clear_btn.bind(on_press=self.clear_record)
+        layout.add_widget(self.clear_btn)
+
+        self.save_btn = Button(text="Save", size_hint=(1,1,))
+        self.save_btn.bind(on_press=self.save_record)
+        layout.add_widget(self.save_btn)
+
+        root.add_widget(layout)
+
+    def save_record(self, *args):
+        Logger.info('save_record')
+        return True
+
+    def clear_record(self, *args):
+        Logger.info('clear_record')
+        for i in range(2):
+            self.barcode_widgets[i].text = ''
+        
+        for form in self.config:
+            for tab in self.config[form]:
+                for field in self.config[form][tab]:
+                    entry = self.config[form][tab][field]
+                    if entry["lable_widget"].state != 'down':
+                        entry["widget"].text = ''
+        return False
+
+    def barcode_changed(self, i, ti, *args):
+        Logger.info('barcode_changed {} {} {}'.format(i, ti, args))
 
     def on_barcode_scanned(self, barcode):
         Logger.info('FormBuilder.on_barcode_scanned {}'.format(barcode))
-        self.barcode_widget_lbl.text = barcode
+        for i in range(2):
+            if self.barcode_widgets[i] is None:
+                continue
+            if len(self.barcode_widgets[i].text.strip()) == 0:
+                self.barcode_widgets[i].text = barcode
+                return
         
     def create_form_entries(self, root, form, tab):
         Logger.info('create_form_entries {} {}'.format(form, tab))

@@ -70,6 +70,7 @@ class GenericUIApp(App):
 
     def on_barcode_scan(self, barcode):
         Logger.info('on_barcode_scan {}'.format(barcode))
-        Clock.schedule_once(functools.partial(self.__base_widget.on_barcode_scan, barcode), -1)
+        if len(barcode):
+            Clock.schedule_once(functools.partial(self.__base_widget.on_barcode_scan, barcode), -1)
         #win = self.root.get_root_window()
         #self.__base_widget.dispatch('on_barcode_scan', barcode)
