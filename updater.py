@@ -33,6 +33,8 @@ def update_from_sdcard(filename=None, fileobj=None):
         print('extracting update... done.')
         toast("App updated to version {}. Restarting...".format(update_version), True)
         Clock.schedule_once(restart, 1)
+        return True
+    return False
 
 def update():
     try:
@@ -41,11 +43,12 @@ def update():
         url = config.get('updater', 'url')
         print("update url {}".format(url))
         fd = urllib2.urlopen(url)
-        update_from_sdcard(fileobj=io.BytesIO(fd.read()))
+        if update_from_sdcard() is False:
+            update_from_sdcard(fileobj=io.BytesIO(fd.read()))
     except:
         import traceback
         traceback.print_exc()
-        update_from_sdcard()
+        # update_from_sdcard()
 
 def restart(*args):
     print('restart')

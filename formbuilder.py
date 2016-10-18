@@ -92,13 +92,15 @@ class FormBuilder(Screen):
         record = self.get_record_dict()
         start = self.barcode_widgets[0].text.strip()
         stop = self.barcode_widgets[1].text.strip()
+        import csv
         if len(start) is 0:
-            plyer.vibrator.vibrate(0.2)
+            plyer.vibrator.vibrate(0.1)
+            return
 
         c = self.conn.cursor()
         c.execute('''insert into entry (start, stop, data) values (?,?,?)''',
                   (start, stop, json.dumps(record)))
-        c.commit()
+        self.conn.commit()
         plyer.vibrator.vibrate(.5)
 
     def get_record_dict(self, only_locked_fields=False):
