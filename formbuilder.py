@@ -13,10 +13,15 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.clock import Clock
 from kivy.logger import Logger
 
+from util import get_sdcard_path
+
+import sqlite3
+from os.path import join
 import json
 import functools
 import collections
 from pprint import pprint
+import plyer
 
 class FormBuilder(Screen):
     def __init__(self, sm, *a, **k):
@@ -25,6 +30,7 @@ class FormBuilder(Screen):
         self.reload()
         self.barcode_widgets = [ None, None ]
         self.create_ui()
+        Clock.schedule_once(self.open_database, 0)
 
     def create_ui(self):
         main_layout = BoxLayout(orientation='vertical', size_hint_y=None, padding=10)
@@ -83,7 +89,49 @@ class FormBuilder(Screen):
 
     def save_record(self, *args):
         Logger.info('save_record')
-        return True
+        record = self.get_record_dict()
+        start = self.barcode_widgets[0].text.strip()
+        stop = self.barcode_widgets[1].text.strip()
+        if len(start) is 0:
+            plyer.vibrator.vibrate(0.2)
+
+        c = self.conn.cursor()
+        c.execute('''insert into entry (start, stop, data) values (?,?,?)''',
+                  (start, stop, json.dumps(record)))
+        c.commit()
+        plyer.vibrator.vibrate(.5)
+
+    def get_record_dict(self, only_locked_fields=False):
+        record = {}
+        # k = xform('{}{}'.format(tab, field))
+        for form in self.config: # TODO: Store form in record
+            for tab in self.config[form]:
+                for field in self.config[form][tab]:
+                    try:
+                        entry = self.config[form][tab][field]
+                        if only_locked_fields and entry["widget"].disabled is False:
+                            continue
+                        v = entry["widget"].text.strip()
+                        if len(v):
+                            record[entry["reckey"]] = v
+                    except:
+                        pass
+        for i, k in enumerate(['barcode_start', 'barcode_stop']):
+            if self.barcode_widgets[i] is None:
+                continue
+            if len(self.barcode_widgets[i].text.strip()):
+                v = self.barcode_widgets[i].text.strip()
+                record[k] = v
+        pprint(record)
+        return record
+
+    def open_database(self, *args):
+        dbpath = join(get_sdcard_path(), 'entries.db')
+        Logger.info('open_database {}'.format(dbpath))
+        self.conn = sqlite3.connect(dbpath)
+        c = self.conn.cursor()
+        c.execute('''create table if not exists entry (idx INTEGER PRIMARY KEY AUTOINCREMENT, start UNIQUE, stop, data)''')
+        self.conn.commit()
 
     def clear_record(self, *args):
         Logger.info('clear_record')
@@ -113,10 +161,18 @@ class FormBuilder(Screen):
     def create_form_entries(self, root, form, tab):
         Logger.info('create_form_entries {} {}'.format(form, tab))
         layout = GridLayout(cols=2, size_hint=(1,1))
+        try: saved_record = json.load(open('lockedfields.json'))
+        except: saved_record = {}
+        def xform(k):
+            return ''.join([ c for c in k if c.isalnum() ])
         for field in self.config[form][tab]:
             entry = self.config[form][tab][field]
+            entry['reckey'] = xform('{}{}'.format(tab, field))
+            try: saved_text = saved_record[entry['reckey']]
+            except KeyError: saved_text = None
             if True: # entry["lock"]:
                 lbl = ToggleButton(text=field,
+                                   state=('normal' if saved_text is None else 'down'),
                                    background_normal="atlas://data/images/defaulttheme/button_pressed",
                                    background_down="atlas://data/images/defaulttheme/button")
                 lbl.bind(state=functools.partial(self.locked_btn_pressed, form, tab, field, entry))
@@ -137,21 +193,27 @@ class FormBuilder(Screen):
             entry["root_title"] = root.title
             entry["lable_widget"] = lbl
             entry["widget"] = e
+            if saved_text:
+                e.text = saved_text
+                e.disabled = True
         root.add_widget(layout)
 
     def data_changed(self, form, tab, field, entry, *args):
         Logger.info("data_changed {} {}".format(entry, args))
 
         
-        texts = ( e["widget"].text for field,e in self.config[form][tab].items())
+        texts = ( e["widget"].text for field,e in self.config[form][tab].items() if e.has_key("widget"))
         texts = ( t for t in texts if len(t) )
         texts = u' '.join(texts)
-        Logger.info(u"texts: {}".format(texts))
+        # Logger.info(u"texts: {}".format(texts))
         entry["root"].title = u"{}: {}".format(entry["root_title"], texts)
             
     def locked_btn_pressed(self, form, tab, field, entry, *args):
         Logger.info('locked_btn_pressed {} {} {} {}'.format(form, tab, field, entry, args))
         entry["widget"].disabled = entry["lable_widget"].state == "down"
+        if entry["widget"].disabled:
+            record = self.get_record_dict(only_locked_fields=True)
+            json.dump(record, open('lockedfields.json', 'w'))
 
     @classmethod
     def load(cls, filename=None):
