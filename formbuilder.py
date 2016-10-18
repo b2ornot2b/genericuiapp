@@ -228,12 +228,13 @@ class FormBuilder(Screen):
 
     def data_changed(self, form, tab, field, entry, *args):
         Logger.info("data_changed {} {}".format(entry, args))
+        self.do_data_changed(form, tab, field, entry, *args)
 
-        
+    def do_data_changed(self, form, tab, field, entry, *args):
+        Logger.info("do_data_changed {} {} {} {} {}".format(form, tab, field, entry, args))
         texts = ( e["widget"].text for field,e in self.config[form][tab].items() if e.has_key("widget"))
         texts = ( t for t in texts if len(t) )
         texts = u' '.join(texts)
-        # Logger.info(u"texts: {}".format(texts))
         entry["root"].title = u"{}: {}".format(entry["root_title"], texts)
             
     def locked_btn_pressed(self, form, tab, field, entry, *args):
