@@ -3,10 +3,30 @@ from __future__ import print_function
 import kivy
 import os.path
 import shutil
+from ConfigParser import SafeConfigParser as ConfigParser
+
+def get_keyboard_config():
+    config = ConfigParser()
+    config.read('app.ini')
+    try: kbsetting = config.get('app', 'keyboard')
+    except: kbsetting = 'dock'
+    return kbsetting
+
+def set_keyboard_config(kbsetting):
+    config = ConfigParser()
+    config.read('app.ini')
+    try: config.add_section('app')
+    except: pass
+    config.set('app', 'keyboard', kbsetting)
+    config.write(open('app.ini', 'w'))
+    from kivy.config import Config
+    Config.set('kivy', 'keyboard_mode', kbsetting)
+
 
 def keyboard_init():
+    mode = get_keyboard_config()
     from kivy.config import Config
-    Config.set('kivy', 'keyboard_mode', 'dock')
+    Config.set('kivy', 'keyboard_mode', mode)
 
     kbd = 'b2simplekbd'
     kbd_json = '{}.json'.format(kbd)

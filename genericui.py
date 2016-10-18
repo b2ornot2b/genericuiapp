@@ -37,7 +37,7 @@ class GenericUI(ScreenManager):
         self.formbuilder = FormBuilder(self)
         self.add_widget(self.formbuilder)
 
-        #self.sm = ScreenManager()
+       #self.sm = ScreenManager()
         #self.add_widget(self.get_home_screen())
         #self.add_widget(self.sm)
         #ti = Input()

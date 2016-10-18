@@ -3,6 +3,7 @@ from __future__ import print_function
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.switch import Switch
 from kivy.uix.accordion import Accordion, AccordionItem
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -38,7 +39,32 @@ class FormBuilder(Screen):
             btn = Button(text=form, height=250, size_hint=(1, None), on_press=functools.partial(self.main_btn_pressed, form))
                 
             main_layout.add_widget(btn)
+
+        update_btn = Button(text="Check for updates", height=300, size_hint=(1, None), on_press=self.check_for_updates)
+        main_layout.add_widget(update_btn)
+
+        bl = BoxLayout(orientation="horizontal", height=300, size_hint=(1, None))
+        from keyboard import get_keyboard_config
+        softkeyboard_switch = Switch(active=(get_keyboard_config() == "system"))
+        softkeyboard_switch.bind(active=self.softkeyboard_switch_changed)
+        bl.add_widget(Label(text="Use system keyboard"))
+        bl.add_widget(softkeyboard_switch)
+        main_layout.add_widget(bl)
+
         self.add_widget(main_layout)
+ 
+    def softkeyboard_switch_changed(self, switch, value, *args):
+        Logger.info("softkeyboard_switch_changed {} {} {}".format(switch, value, args))
+        from keyboard import set_keyboard_config
+        set_keyboard_config("system" if value else "dock")
+        from kivytoast import toast
+        toast("You must restart the app for the keyboard setting to take effect")
+
+    def check_for_updates(self, *args):
+        Logger.info('check_for_updates')
+        from util import run_on_new_thread
+        from updater import update
+        run_on_new_thread(update)
 
     def reload(self):
         self.config = json.load(open('formbuilder.json'), object_pairs_hook=collections.OrderedDict)
