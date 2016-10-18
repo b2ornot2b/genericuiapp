@@ -78,7 +78,7 @@ orientation = all
 
 # (list) Permissions
 #android.permissions = INTERNET
-android.permissions = INTERNET,ACCESS_NETWORK_STATE,CAMERA
+android.permissions = INTERNET,ACCESS_NETWORK_STATE,CAMERA,VIBRATE
 
 # (int) Android API to use
 #android.api = 19
