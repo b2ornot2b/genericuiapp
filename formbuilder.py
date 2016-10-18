@@ -74,7 +74,7 @@ class FormBuilder(Screen):
         for i, text in enumerate([ 'Barcode start', 'Barcode stop' ]):
             layout.add_widget(Label(text=text))
             self.barcode_widgets[i] = e = TextInput(text="", size_hint=(1, 1))
-            e.bind(text=functools.partial(self.barcode_changed, i))
+            e.bind(focus=functools.partial(self.barcode_changed, i))
             layout.add_widget(e)
 
         self.clear_btn = Button(text="Clear", size_hint=(1,1,))
@@ -98,10 +98,10 @@ class FormBuilder(Screen):
             return
 
         c = self.conn.cursor()
-        c.execute('''insert into entry (start, stop, data) values (?,?,?)''',
+        c.execute('''insert or replace into entry (start, stop, data) values (?,?,?)''',
                   (start, stop, json.dumps(record)))
         self.conn.commit()
-        plyer.vibrator.vibrate(.5)
+        plyer.vibrator.vibrate(.4)
 
     def get_record_dict(self, only_locked_fields=False):
         record = {}
@@ -148,8 +148,33 @@ class FormBuilder(Screen):
                         entry["widget"].text = ''
         return False
 
-    def barcode_changed(self, i, ti, *args):
-        Logger.info('barcode_changed {} {} {}'.format(i, ti, args))
+    def barcode_changed(self, i, ti, value):
+        Logger.info('barcode_changed {} {} {}'.format(i, ti, value))
+        if not (value is False and i==0):
+            return
+        value = ti.text.strip()
+        Logger.info('searching {}...'.format(value))
+        cursor = self.conn.cursor()
+        for row in cursor.execute('''select start, stop, data from entry where start=?''',
+                       (value,)):
+            Logger.info('row={}'.format(row))
+            try: start, stop, data = row[0], row[1], json.loads(row[2])
+            except: continue
+            Logger.info('found {} {}'.format(start, stop))
+            self.update_fields(data)
+
+    def update_fields(self, data):
+        Logger.info("update_fields {}".format(data))
+        for form in self.config:
+            for tab in self.config[form]:
+                for field in self.config[form][tab]:
+                    entry = self.config[form][tab][field]
+                    try:
+                        value = data[entry["reckey"]]
+                        Logger.info("set {} => {}".format(entry["reckey"], value))
+                    except KeyError:
+                        value = ""
+                    entry["widget"].text = value
 
     def on_barcode_scanned(self, barcode):
         Logger.info('FormBuilder.on_barcode_scanned {}'.format(barcode))
@@ -158,6 +183,7 @@ class FormBuilder(Screen):
                 continue
             if len(self.barcode_widgets[i].text.strip()) == 0:
                 self.barcode_widgets[i].text = barcode
+                self.barcode_changed(i, self.barcode_widgets[i], False)
                 return
         
     def create_form_entries(self, root, form, tab):
