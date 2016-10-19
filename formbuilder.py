@@ -18,12 +18,15 @@ from util import get_sdcard_path
 from popuptextinput import PopupTextInput
 
 import sqlite3
+import plyer
+
 from os.path import join
 import json
 import functools
 import collections
+import traceback
+import re
 from pprint import pprint
-import plyer
 
 class FormBuilder(Screen):
     def __init__(self, sm, *a, **k):
@@ -45,13 +48,13 @@ class FormBuilder(Screen):
     def create_ui(self):
         screen = Screen(name="home")
         main_layout = BoxLayout(orientation='vertical', size_hint_y=None, padding=10)
-        for form in self.config:
-            btn = Button(text=form, height=250, size_hint=(1, None), on_press=functools.partial(self.main_btn_pressed, form))
-                
-            main_layout.add_widget(btn)
 
         update_btn = Button(text="Check for updates", height=300, size_hint=(1, None), on_press=self.check_for_updates)
         main_layout.add_widget(update_btn)
+
+        share_btn = Button(text="Share", height=300, size_hint=(1, None), on_press=self.share_data)
+        main_layout.add_widget(share_btn)
+
 
         bl = BoxLayout(orientation="horizontal", height=300, size_hint=(1, None))
         from keyboard import get_keyboard_config
@@ -61,9 +64,54 @@ class FormBuilder(Screen):
         bl.add_widget(softkeyboard_switch)
         main_layout.add_widget(bl)
 
+        for form in self.config:
+            btn = Button(text=form, height=250, size_hint=(1, None), on_press=functools.partial(self.main_btn_pressed, form))
+            main_layout.add_widget(btn)
+
         screen.add_widget(main_layout)
         self.screen_manager.add_widget(screen)
         self.screen_manager.current = "home"
+
+    def share_data(self, *args):
+        Logger.info('share_data')
+        cursor = self.conn.cursor()
+        print(cursor)
+        for row in cursor.execute('''select idx, start, stop, data from entry order by idx'''):
+            print(row)
+            try: idx, start, stop, data = row[0], row[1], row[2], json.loads(row[3])
+            except:
+                traceback.print_exc()
+                print('bad data')
+                continue
+            # if len(stop):
+            # print('{}: {} {} {}'.format(idx, start, stop, data))
+            for entry in self.get_rows(start, stop, data):
+                pprint(entry)
+        
+    def get_rows(self, start, stop, data):
+        Logger.info('get_rows {} {} {}'.format(start, stop, len(data)))
+        data["barcode"] = start
+        if len(stop) == 0:
+            yield data
+            return
+        try:
+            istart = re.findall(r'\d+$', start)[0]
+            p1 = start[:len(istart)+1]
+            istart = int(istart)
+
+            istop = re.findall(r'\d+$', stop)[0]
+            p2 = stop[:len(istop)+1]
+            istop = int(istop)
+            assert(p1==p2)
+        except:
+            traceback.print_exc()
+            yield data
+            return
+        print('irange: {} => {} ({})'.format(istart, istop, istop-istart))
+        for i in range(istart, istop+1):
+            barcode = "{}{}".format(p1, i)
+            data["barcode"] = barcode
+            yield data
  
     def softkeyboard_switch_changed(self, switch, value, *args):
         Logger.info("softkeyboard_switch_changed {} {} {}".format(switch, value, args))
