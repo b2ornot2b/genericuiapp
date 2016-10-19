@@ -33,6 +33,13 @@ import os
 from pprint import pprint
 
 class FormBuilder(Screen):
+    @classmethod
+    def storage_path(cls, *a):
+        path = join(get_sdcard_path(), 'ascan')
+        try: os.mkdir(path)
+        except: pass
+        return path
+
     def __init__(self, sm, *a, **k):
         super(FormBuilder, self).__init__(*a, **k)
         self.last_back_at = time.time()
@@ -45,9 +52,6 @@ class FormBuilder(Screen):
 
     def on_back(self, *args):
         Logger.info('on_back {}'.format(args))
-        #from keyboard import Keyboard
-        #kb = Keyboard.get_instance()
-        #print('keyboard size: {}'.format(kb.size))
 
         now = time.time()
         if self.screen_manager.current == "home":
@@ -62,9 +66,6 @@ class FormBuilder(Screen):
     def create_ui(self):
         screen = Screen(name="home")
         main_layout = BoxLayout(orientation='vertical', size_hint_y=None, padding=10)
-
-        #version_btn = Button(text="Version {}".format(version), height=300, size_hint=(1, None)) # , on_press=self.check_for_updates)
-        #main_layout.add_widget(version_btn)
 
         version = open('version.txt').read().strip()
         update_btn = Button(text="Check for updates\n ver {}".format(version), height=300, size_hint=(1, None), on_press=self.check_for_updates)
@@ -96,7 +97,7 @@ class FormBuilder(Screen):
         print(cursor)
 
         n = time.localtime()
-        csvpath = join(get_sdcard_path(), 'entries-{}{}{}-{}{}.csv'.format(n.tm_year, n.tm_mon, n.tm_mday, n.tm_hour, n.tm_min))
+        csvpath = join(self.storage_path(), 'entries-{}{}{}-{}{}.csv'.format(n.tm_year, n.tm_mon, n.tm_mday, n.tm_hour, n.tm_min))
         Logger.info('open_database {}'.format(csvpath))
         pretty_fields = json.load(open('fields.json'))
         fields = sorted(pretty_fields.values())
@@ -250,7 +251,7 @@ class FormBuilder(Screen):
         return record
 
     def open_database(self, *args):
-        dbpath = join(get_sdcard_path(), 'entries.db')
+        dbpath = join(self.storage_path(), 'entries.db')
         Logger.info('open_database {}'.format(dbpath))
         self.conn = sqlite3.connect(dbpath)
         c = self.conn.cursor()
@@ -355,7 +356,7 @@ class FormBuilder(Screen):
 
     def capture_camera(self, form, tab, field, entry, *args):
         Logger.info("capture_camera {} {}".format(tab, field))
-        gimgs = join(get_sdcard_path(), 'gimgs')
+        gimgs = join(self.storage_path(), 'gimgs')
         try: os.mkdir(gimgs)
         except: pass
         filename = join(gimgs, "camera.jpg")
