@@ -173,7 +173,7 @@
             "Asset Manufacturer Serial Number":{
                 "values":[],
                 "lock":false,
-                "type":"Text & Barcode",
+                "type":"Text",
                 "comments":"",
                 "others":false
             },

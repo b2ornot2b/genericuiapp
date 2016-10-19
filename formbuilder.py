@@ -21,7 +21,7 @@ from popuptextinput import PopupTextInput
 import sqlite3
 import plyer
 
-from os.path import join
+from os.path import join, dirname
 import json
 import functools
 import collections
@@ -29,6 +29,7 @@ import traceback
 import re
 import csv
 import time
+import os
 from pprint import pprint
 
 class FormBuilder(Screen):
@@ -338,7 +339,7 @@ class FormBuilder(Screen):
                 e = Spinner(size_hint=(1, None), values=entry["values"])
                 e.bind(text=functools.partial(self.data_changed, form, tab, field, entry))
             elif entry["type"].lower() == "camera":
-                e = Button(text="Camera")
+                e = Button(text="Camera", on_press=functools.partial(self.capture_camera, form, tab, field, entry))
             layout.add_widget(lbl)
             layout.add_widget(e)
             entry["root"] = root
@@ -350,6 +351,33 @@ class FormBuilder(Screen):
                 e.disabled = True
         root.add_widget(layout)
         # return wprev
+
+    def capture_camera(self, form, tab, field, entry, *args):
+        Logger.info("capture_camera {} {}".format(tab, field))
+        gimgs = join(get_sdcard_path(), 'gimgs')
+        try: os.mkdir(gimgs)
+        except: pass
+        filename = join(gimgs, "camera.jpg")
+        Logger.info('Image: {}'.format(filename))
+        plyer.camera.take_picture(filename, functools.partial(self.on_picture_done, entry))
+
+    def on_picture_done(self, entry, filename, *a):
+        Logger.info('on_picture_done {} {}'.format(filename, entry))
+        import Image
+        im = Image.open(filename)
+        Logger.info('image {} {} {}'.format(im.format, im.size, im.mode))
+        size = [ int(i) for i in entry["widget"].size ]
+        Logger.info('widget size {}'.format(size))
+        btn_im = im.resize(size)
+        thumbfile = join(dirname(filename), 'camera-thumb.jpg')
+        btn_im.save(thumbfile)
+        Logger.info("setting background {}".format(thumbfile))
+        def do_later1(_t1, *a):
+            entry["widget"].background_normal  = ""
+            def do_later2(_t2, *a):
+                entry["widget"].background_normal  = _t2
+            Clock.schedule_once(functools.partial(do_later2, _t1), 0)
+        Clock.schedule_once(functools.partial(do_later1, thumbfile), 0)
 
     def data_changed(self, form, tab, field, entry, *args):
         Logger.info("data_changed {} {}".format(tab, field))
