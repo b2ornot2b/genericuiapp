@@ -220,6 +220,7 @@ class FormBuilder(Screen):
         except: saved_record = {}
         def xform(k):
             return ''.join([ c for c in k if c.isalnum() ])
+        wprev = None
         for field in self.config[form][tab]:
             entry = self.config[form][tab][field]
             entry['reckey'] = xform('{}{}'.format(tab, field))
@@ -235,7 +236,10 @@ class FormBuilder(Screen):
                 lbl = Label(text=field)
             e = Label()
             if entry["type"].lower() == "text":
-                e = PopupTextInput(titlewidget=lbl, size_hint=(1, 1))
+                e = PopupTextInput(titlewidget=lbl, size_hint=(1, 1), wprev=wprev)
+                if wprev:
+                    wprev.set_wnext(e)
+                wprev = e
                 e.bind(text=functools.partial(self.data_changed, form, tab, field, entry))
             elif entry["type"].lower() == "dropdown":
                 e = Spinner(size_hint=(1, None), values=entry["values"])
