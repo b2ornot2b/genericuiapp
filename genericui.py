@@ -27,6 +27,9 @@ class GenericUI(ScreenManager):
         Logger.info('GenericUI.on_size {} => {}'.format(orientation, size))
         Clock.schedule_once(functools.partial(Keyboard.Resize, orientation, size), 0)
 
+    def on_back(self, *a):
+        return self.formbuilder.on_back(*a)
+
     def on_barcode_scan(self, barcode, *args):
         Logger.info('GenericUI.on_barcode_scan {}'.format(barcode))
         if len(barcode):

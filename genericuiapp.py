@@ -45,6 +45,10 @@ class GenericUIApp(App):
         return True
 
     def on_key_down(self, win, key, scancode=None, codepoint=None, modifier=None, *args):
+        # print('on_key_down {} {} {} {} {} {}'.format(win, key,scancode,codepoint,modifier,args))
+        if key == 27:
+            print('BACK')
+            return self.__base_widget.on_back()
         try:
             self.__key_input += codepoint # chr(key)
         except:

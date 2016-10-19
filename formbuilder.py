@@ -34,7 +34,16 @@ class FormBuilder(Screen):
         self.create_ui()
         Clock.schedule_once(self.open_database, 0)
 
+    def on_back(self, *args):
+        Logger.info('on_back {}'.format(args))
+        if self.screen_manager.current == "home":
+            return False
+        else:
+            self.screen_manager.current = "home"
+        return True
+
     def create_ui(self):
+        screen = Screen(name="home")
         main_layout = BoxLayout(orientation='vertical', size_hint_y=None, padding=10)
         for form in self.config:
             btn = Button(text=form, height=250, size_hint=(1, None), on_press=functools.partial(self.main_btn_pressed, form))
@@ -52,7 +61,9 @@ class FormBuilder(Screen):
         bl.add_widget(softkeyboard_switch)
         main_layout.add_widget(bl)
 
-        self.add_widget(main_layout)
+        screen.add_widget(main_layout)
+        self.screen_manager.add_widget(screen)
+        self.screen_manager.current = "home"
  
     def softkeyboard_switch_changed(self, switch, value, *args):
         Logger.info("softkeyboard_switch_changed {} {} {}".format(switch, value, args))
