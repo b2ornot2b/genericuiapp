@@ -46,11 +46,13 @@ def keyboard_init():
 
 
 from kivy.uix.vkeyboard import VKeyboard
+from kivy.uix.bubble import Bubble
 from kivy.properties import ListProperty, NumericProperty, StringProperty
 from kivy.clock import Clock
 from kivy.logger import Logger
 
 from kivy.uix.label import Label
+from kivy.uix.bubble import Bubble
 from kivy.graphics import Color, BorderImage, Canvas
 from kivy.resources import resource_find
 from kivy.core.image import Image
@@ -126,6 +128,14 @@ class Keyboard(VKeyboard):
         if win:
             orientation = 'portrait' if win.size[0] < win.size[1] else 'landscape'
             Clock.schedule_once(functools.partial(Keyboard.Resize, orientation, win.size), 0)
+            #self.bubble = Bubble()
+            #from kivy.uix.textinput import TextInput
+            #ti = TextInput()
+            #def text_changed(text, *a):
+            #    ti.text = text
+            #self.target.bind(on_text=text_changed)
+            #self.bubble.add_widget(ti)
+            #self.target.add_widget(self.bubble)
 
     @classmethod
     def Resize(cls, orientation, size, *args):

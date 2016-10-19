@@ -28,22 +28,12 @@ class GenericUIApp(App):
 
     def on_start(self):
         run_on_new_thread(update)
-        #try:
-        #    update()
-        #except Exception:
-        #    import traceback
-        #    traceback.print_exc()
-
         win = self.root.get_root_window()
         win.set_vkeyboard_class(Keyboard)
-        #print("root window {} {}".format(win, win.softinput_mode))
         win.softinput_mode = 'pan'
         win.bind(on_key_down=self.on_key_down)
-        # self.__base_widget.on_barcode_scan = (lambda *a, **k: True)
-        # self.__base_widget.register_event_type('on_barcode_scan')
         self.__complete_key_input_event = None
         self.__key_input = ''
-
 
 
     def on_pause(self):
@@ -58,11 +48,11 @@ class GenericUIApp(App):
         try:
             self.__key_input += codepoint # chr(key)
         except:
-            return True
+            return False
         if self.__complete_key_input_event:
             self.__complete_key_input_event.cancel()
         self.__complete_key_input_event = Clock.schedule_once(self.__complete_key_input, .2)
-        return True
+        return False
 
     def __complete_key_input(self, *args):
         self.on_barcode_scan(self.__key_input)

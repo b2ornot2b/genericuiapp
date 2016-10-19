@@ -15,6 +15,7 @@ from kivy.clock import Clock
 from kivy.logger import Logger
 
 from util import get_sdcard_path
+from popuptextinput import PopupTextInput
 
 import sqlite3
 from os.path import join
@@ -98,9 +99,10 @@ class FormBuilder(Screen):
         Logger.info('create_barcode_widget')
         layout = GridLayout(cols=2, size_hint=(1,1))
         for i, text in enumerate([ 'Barcode start', 'Barcode stop' ]):
-            layout.add_widget(Label(text=text))
-            self.barcode_widgets[i] = e = TextInput(text="", size_hint=(1, 1))
-            e.bind(focus=functools.partial(self.barcode_changed, i))
+            lbl = Label(text=text)
+            layout.add_widget(lbl)
+            self.barcode_widgets[i] = e = PopupTextInput(text="", titlewidget=lbl, size_hint=(1, 1))
+            #e.bind(focus=functools.partial(self.barcode_changed, i))
             layout.add_widget(e)
 
         self.clear_btn = Button(text="Clear", size_hint=(1,1,))
@@ -131,7 +133,6 @@ class FormBuilder(Screen):
 
     def get_record_dict(self, only_locked_fields=False):
         record = {}
-        # k = xform('{}{}'.format(tab, field))
         for form in self.config: # TODO: Store form in record
             for tab in self.config[form]:
                 for field in self.config[form][tab]:
@@ -234,7 +235,7 @@ class FormBuilder(Screen):
                 lbl = Label(text=field)
             e = Label()
             if entry["type"].lower() == "text":
-                e = TextInput(size_hint=(1, 1))
+                e = PopupTextInput(titlewidget=lbl, size_hint=(1, 1))
                 e.bind(text=functools.partial(self.data_changed, form, tab, field, entry))
             elif entry["type"].lower() == "dropdown":
                 e = Spinner(size_hint=(1, None), values=entry["values"])
@@ -253,11 +254,11 @@ class FormBuilder(Screen):
         root.add_widget(layout)
 
     def data_changed(self, form, tab, field, entry, *args):
-        Logger.info("data_changed {} {}".format(entry, args))
+        Logger.info("data_changed {} {}".format(tab, field))
         self.do_data_changed(form, tab, field, entry, *args)
 
     def do_data_changed(self, form, tab, field, entry, *args):
-        Logger.info("do_data_changed {} {} {} {} {}".format(form, tab, field, entry, args))
+        #Logger.info("do_data_changed {} {} {} {} {}".format(form, tab, field, entry, args))
         texts = ( e["widget"].text for field,e in self.config[form][tab].items() if e.has_key("widget"))
         texts = ( t for t in texts if len(t) )
         texts = u' '.join(texts)
