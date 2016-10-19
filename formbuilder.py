@@ -128,18 +128,18 @@ class FormBuilder(Screen):
             return
         try:
             istart = re.findall(r'\d+$', start)[0]
-            p1 = start[:len(istart)+1]
+            p1 = start[:-len(istart)]
             istart = int(istart)
 
             istop = re.findall(r'\d+$', stop)[0]
-            p2 = stop[:len(istop)+1]
+            p2 = stop[:-len(istop)]
             istop = int(istop)
             assert(p1==p2)
         except:
             traceback.print_exc()
             yield data
             return
-        print('irange: {} => {} ({})'.format(istart, istop, istop-istart))
+        print('irange: {} => {} ({})'.format(istart, istop, istop-istart+1))
         for i in range(istart, istop+1):
             barcode = "{}{}".format(p1, i)
             data["barcode"] = barcode
