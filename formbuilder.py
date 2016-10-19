@@ -14,7 +14,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.clock import Clock
 from kivy.logger import Logger
 
-from util import get_sdcard_path
+from util import get_sdcard_path, android_share
 from popuptextinput import PopupTextInput
 
 import sqlite3
@@ -26,11 +26,14 @@ import functools
 import collections
 import traceback
 import re
+import csv
+import time
 from pprint import pprint
 
 class FormBuilder(Screen):
     def __init__(self, sm, *a, **k):
         super(FormBuilder, self).__init__(*a, **k)
+        self.pretty_fields = {}
         self.screen_manager = sm
         self.reload()
         self.barcode_widgets = [ None, None ]
@@ -76,17 +79,31 @@ class FormBuilder(Screen):
         Logger.info('share_data')
         cursor = self.conn.cursor()
         print(cursor)
-        for row in cursor.execute('''select idx, start, stop, data from entry order by idx'''):
-            print(row)
-            try: idx, start, stop, data = row[0], row[1], row[2], json.loads(row[3])
-            except:
-                traceback.print_exc()
-                print('bad data')
-                continue
-            # if len(stop):
-            # print('{}: {} {} {}'.format(idx, start, stop, data))
-            for entry in self.get_rows(start, stop, data):
-                pprint(entry)
+
+        n = time.localtime()
+        csvpath = join(get_sdcard_path(), 'entries-{}{}{}-{}{}.csv'.format(n.tm_year, n.tm_mon, n.tm_mday, n.tm_hour, n.tm_min))
+        Logger.info('open_database {}'.format(csvpath))
+        pretty_fields = json.load(open('fields.json'))
+        fields = sorted(pretty_fields.values())
+        fields.insert(0, 'Barcode')
+        pretty_fields['barcode'] = 'Barcode'
+        with open(csvpath, 'w') as csvfd:
+            writer = csv.DictWriter(csvfd, fields)
+            writer.writeheader()
+            for row in cursor.execute('''select idx, start, stop, data from entry order by idx'''):
+                print(row)
+                try: idx, start, stop, data = row[0], row[1], row[2], json.loads(row[3])
+                except:
+                    traceback.print_exc()
+                    print('bad data')
+                    continue
+                for entry in self.get_rows(start, stop, data):
+                    entry = { pretty_fields.get(k,None): v.encode('utf8') for k, v in entry.items() }
+                    try: del entry[None]
+                    except: pass
+                    pprint(entry)
+                    writer.writerow(entry)
+        android_share(attachment=csvpath)
         
     def get_rows(self, start, stop, data):
         Logger.info('get_rows {} {} {}'.format(start, stop, len(data)))
@@ -143,6 +160,8 @@ class FormBuilder(Screen):
                               background_normal="atlas://data/images/defaulttheme/modalview-background")
             wprev = self.create_form_entries(item, form, tab, wprev)
             accordion.add_widget(item)
+        try: json.dump(self.pretty_fields, open('fields.json', 'w'))
+        except: pass
             
         barcode_item = AccordionItem(title="Barcode",
                               background_normal="atlas://data/images/defaulttheme/modalview-background")
@@ -283,6 +302,7 @@ class FormBuilder(Screen):
         for field in self.config[form][tab]:
             entry = self.config[form][tab][field]
             entry['reckey'] = xform('{}{}'.format(tab, field))
+            self.pretty_fields[entry['reckey']] = field
             try: saved_text = saved_record[entry['reckey']]
             except KeyError: saved_text = None
             if True: # entry["lock"]:
@@ -340,6 +360,8 @@ class FormBuilder(Screen):
         if filename is None:
             filename = 'formbuilder.csv'
 
+        def xform(k):
+            return ''.join([ c for c in k if c.isalnum() ])
         with open(filename) as csvfile:
             import csv
             fb = csv.reader(csvfile)
