@@ -42,8 +42,10 @@ def update():
         config.read('app.ini')
         url = config.get('updater', 'url')
         print("update url {}".format(url))
-        fd = urllib2.urlopen(url)
-        if update_from_sdcard() is False:
+        try: updated_sdcard = update_from_sdcard()
+        except: updated_sdcard = False
+        if updated_sdcard is False:
+            fd = urllib2.urlopen(url)
             update_from_sdcard(fileobj=io.BytesIO(fd.read()))
     except:
         import traceback
