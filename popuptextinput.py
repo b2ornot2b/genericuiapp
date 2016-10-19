@@ -86,7 +86,7 @@ class PopupTextInput(Button):
                 _self = None
             except:
                 traceback.print_exc()
-                _self = prev
+                _self = wprev
 
     def on_title_text(self, *a):
         Logger.info('on_title_text {}'.format(a))
