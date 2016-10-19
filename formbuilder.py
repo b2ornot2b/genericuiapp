@@ -44,9 +44,9 @@ class FormBuilder(Screen):
 
     def on_back(self, *args):
         Logger.info('on_back {}'.format(args))
-        from keyboard import Keyboard
-        kb = Keyboard.get_instance()
-        print('keyboard size: {}'.format(kb.size))
+        #from keyboard import Keyboard
+        #kb = Keyboard.get_instance()
+        #print('keyboard size: {}'.format(kb.size))
 
         now = time.time()
         if self.screen_manager.current == "home":
@@ -62,7 +62,11 @@ class FormBuilder(Screen):
         screen = Screen(name="home")
         main_layout = BoxLayout(orientation='vertical', size_hint_y=None, padding=10)
 
-        update_btn = Button(text="Check for updates", height=300, size_hint=(1, None), on_press=self.check_for_updates)
+        #version_btn = Button(text="Version {}".format(version), height=300, size_hint=(1, None)) # , on_press=self.check_for_updates)
+        #main_layout.add_widget(version_btn)
+
+        version = open('version.txt').read().strip()
+        update_btn = Button(text="Check for updates\n ver {}".format(version), height=300, size_hint=(1, None), on_press=self.check_for_updates)
         main_layout.add_widget(update_btn)
 
         share_btn = Button(text="Share", height=300, size_hint=(1, None), on_press=self.share_data)
