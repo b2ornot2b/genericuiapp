@@ -3,6 +3,7 @@ from __future__ import print_function
 import kivy
 import os.path
 import shutil
+import traceback
 from ConfigParser import SafeConfigParser as ConfigParser
 
 def get_keyboard_config():
@@ -142,10 +143,18 @@ class Keyboard(VKeyboard):
         if cls.__instance_ref:
             keyboard = cls.__instance_ref()
             if keyboard:
-                keyboard.height = 500 if orientation == 'portrait' else 200
-                Logger.info('Keyboard.Resize {} {} => {}x{}'.format(orientation, size, keyboard.width, keyboard.height))
-                keyboard.setup_mode()
-                keyboard.refresh(True)
+                Clock.schedule_once(functools.partial(cls._do_kbrefresh, keyboard, orientation, size), 0)
+
+    @classmethod
+    def _do_kbrefresh(cls, keyboard, orientation, size, *a):
+        keyboard.height = 500 if orientation == 'portrait' else 200
+        Logger.info('Keyboard.Resize {} {} => {}x{}'.format(orientation, size, keyboard.width, keyboard.height))
+        try:
+            keyboard.setup_mode()
+            keyboard.refresh(True)
+        except:
+            traceback.print_exc()
+            print('traceback of keyboard.setup_mode/refresh')
 
     @classmethod
     def get_instance(cls):

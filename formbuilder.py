@@ -223,6 +223,7 @@ class FormBuilder(Screen):
         c.execute('''insert or replace into entry (start, stop, data) values (?,?,?)''',
                   (start, stop, json.dumps(record)))
         self.conn.commit()
+        self.clear_record()
         plyer.vibrator.vibrate(.4)
 
     def get_record_dict(self, only_locked_fields=False):
