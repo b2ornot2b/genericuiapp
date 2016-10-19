@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from kivy.core.window import Window
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -33,6 +34,7 @@ from pprint import pprint
 class FormBuilder(Screen):
     def __init__(self, sm, *a, **k):
         super(FormBuilder, self).__init__(*a, **k)
+        self.last_back_at = time.time()
         self.pretty_fields = {}
         self.screen_manager = sm
         self.reload()
@@ -42,10 +44,18 @@ class FormBuilder(Screen):
 
     def on_back(self, *args):
         Logger.info('on_back {}'.format(args))
+        from keyboard import Keyboard
+        kb = Keyboard.get_instance()
+        print('keyboard size: {}'.format(kb.size))
+
+        now = time.time()
         if self.screen_manager.current == "home":
             return False
         else:
-            self.screen_manager.current = "home"
+            Window.release_all_keyboards()
+            if (now - self.last_back_at) < 1:
+                self.screen_manager.current = "home"
+        self.last_back_at = now
         return True
 
     def create_ui(self):

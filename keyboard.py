@@ -146,3 +146,8 @@ class Keyboard(VKeyboard):
                 Logger.info('Keyboard.Resize {} {} => {}x{}'.format(orientation, size, keyboard.width, keyboard.height))
                 keyboard.setup_mode()
                 keyboard.refresh(True)
+
+    @classmethod
+    def get_instance(cls):
+        try: return cls.__instance_ref()
+        except: return None
