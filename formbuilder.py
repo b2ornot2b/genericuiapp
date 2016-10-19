@@ -78,10 +78,11 @@ class FormBuilder(Screen):
         Logger.info('create_form {} {}'.format(form, args))
         screen = Screen(name=form, size_hint=(1,1))
         accordion = Accordion(orientation="vertical", size_hint=(1,1))
+        wprev = None
         for tab in self.config[form]:
             item = AccordionItem(title=tab,
                               background_normal="atlas://data/images/defaulttheme/modalview-background")
-            self.create_form_entries(item, form, tab)
+            wprev = self.create_form_entries(item, form, tab, wprev)
             accordion.add_widget(item)
             
         barcode_item = AccordionItem(title="Barcode",
@@ -213,14 +214,13 @@ class FormBuilder(Screen):
                 self.barcode_changed(i, self.barcode_widgets[i], False)
                 return
         
-    def create_form_entries(self, root, form, tab):
+    def create_form_entries(self, root, form, tab, wprev=None):
         Logger.info('create_form_entries {} {}'.format(form, tab))
         layout = GridLayout(cols=2, size_hint=(1,1))
         try: saved_record = json.load(open('lockedfields.json'))
         except: saved_record = {}
         def xform(k):
             return ''.join([ c for c in k if c.isalnum() ])
-        wprev = None
         for field in self.config[form][tab]:
             entry = self.config[form][tab][field]
             entry['reckey'] = xform('{}{}'.format(tab, field))
@@ -256,6 +256,7 @@ class FormBuilder(Screen):
                 e.text = saved_text
                 e.disabled = True
         root.add_widget(layout)
+        # return wprev
 
     def data_changed(self, form, tab, field, entry, *args):
         Logger.info("data_changed {} {}".format(tab, field))

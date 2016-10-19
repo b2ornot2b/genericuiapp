@@ -61,18 +61,32 @@ class PopupTextInput(Button):
     def on_next(self, *a):
         Logger.info('on_next')
         self.popup.dismiss()
-        if self.wnextref:
-            wnext = self.wnextref()
-            if wnext:
+        _self = self
+        while _self:
+            wnext = None
+            try:
+                wnext = _self.wnextref()
+                if wnext.disabled is True: raise Exception
                 wnext.show_popup()
+                _self = None
+            except:
+                traceback.print_exc()
+                _self = wnext
 
     def on_previous(self, *a):
         Logger.info('on_previous')
         self.popup.dismiss()
-        if self.wprevref:
-            wprev = self.wprevref()
-            if wprev:
+        _self = self
+        while _self:
+            wprev = None
+            try:
+                wprev = _self.wprevref()
+                if wprev.disabled is True: raise Exception
                 wprev.show_popup()
+                _self = None
+            except:
+                traceback.print_exc()
+                _self = prev
 
     def on_title_text(self, *a):
         Logger.info('on_title_text {}'.format(a))
