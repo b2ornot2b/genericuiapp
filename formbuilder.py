@@ -353,7 +353,7 @@ class FormBuilder(Screen):
             layout.add_widget(lbl)
             layout.add_widget(e)
             entry["root"] = root
-            entry["root_title"] = root.title
+            entry["root_title"] = tab
             entry["lable_widget"] = lbl
             entry["widget"] = e
             if saved_text:
