@@ -280,6 +280,11 @@ class FormBuilder(Screen):
                         except: pass
                         try: entry["widget"].popup_input.text=""
                         except: pass
+                    if entry["type"].lower() == "camera":
+                        entry["widget"].text = ""
+                        entry["widget"].background_normal = ""
+                        
+                        
         return False
 
     def barcode_changed(self, i, ti, value):
@@ -352,7 +357,7 @@ class FormBuilder(Screen):
                 e = Spinner(size_hint=(1, None), values=entry["values"])
                 e.bind(text=functools.partial(self.data_changed, form, tab, field, entry))
             elif entry["type"].lower() == "camera":
-                e = Button(text="Camera", on_press=functools.partial(self.capture_camera, form, tab, field, entry))
+                e = Button(text="", on_press=functools.partial(self.capture_camera, form, tab, field, entry))
             layout.add_widget(lbl)
             layout.add_widget(e)
             entry["root"] = root
