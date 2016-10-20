@@ -43,6 +43,7 @@ class FormBuilder(Screen):
     def __init__(self, sm, *a, **k):
         super(FormBuilder, self).__init__(*a, **k)
         self.last_back_at = time.time()
+        self.forms = {}
         self.pretty_fields = {}
         self.screen_manager = sm
         self.reload()
@@ -168,6 +169,9 @@ class FormBuilder(Screen):
 
     def create_form(self, form, *args):
         Logger.info('create_form {} {}'.format(form, args))
+        if form in self.forms:
+            return self.set_form(form)
+
         screen = Screen(name=form, size_hint=(1,1))
         accordion = Accordion(orientation="vertical", size_hint=(1,1))
         wprev = None
@@ -185,6 +189,7 @@ class FormBuilder(Screen):
         accordion.add_widget(barcode_item)
         screen.add_widget(accordion)
         self.screen_manager.add_widget(screen)
+        self.forms[form] = screen
         Clock.schedule_once(functools.partial(self.set_form, form), 0)
 
     def set_form(self, form, *args):
@@ -294,7 +299,7 @@ class FormBuilder(Screen):
                     entry = self.config[form][tab][field]
                     try:
                         value = data[entry["reckey"]]
-                        Logger.info("set {} => {}".format(entry["reckey"], value))
+                        Logger.info("set {} => {} : {}".format(entry["reckey"], value, entry["widget"]))
                     except KeyError:
                         value = ""
                     entry["widget"].text = value
@@ -319,7 +324,7 @@ class FormBuilder(Screen):
         for field in self.config[form][tab]:
             entry = self.config[form][tab][field]
             entry['reckey'] = xform('{}{}'.format(tab, field))
-            self.pretty_fields[entry['reckey']] = field
+            self.pretty_fields[entry['reckey']] = '{} {}'.format(tab, field)
             try: saved_text = saved_record[entry['reckey']]
             except KeyError: saved_text = None
             if True: # entry["lock"]:
@@ -394,6 +399,7 @@ class FormBuilder(Screen):
             
     def locked_btn_pressed(self, form, tab, field, entry, *args):
         Logger.info('locked_btn_pressed {} {} {} {}'.format(form, tab, field, entry, args))
+        Logger.info('widget {} {} {}'.format(entry["widget"], entry["widget"].disabled, entry["lable_widget"].state))
         entry["widget"].disabled = entry["lable_widget"].state == "down"
         if entry["widget"].disabled:
             record = self.get_record_dict(only_locked_fields=True)
