@@ -266,7 +266,10 @@ class FormBuilder(Screen):
     def clear_record(self, *args):
         Logger.info('clear_record')
         for i in range(2):
-            self.barcode_widgets[i].text = ''
+            try: self.barcode_widgets[i].text = ''
+            except: pass
+            try: self.barcode_widgets[i].popup_input.text = ''
+            except: pass
         
         for form in self.config:
             for tab in self.config[form]:
