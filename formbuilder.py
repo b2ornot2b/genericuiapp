@@ -17,11 +17,12 @@ from kivy.logger import Logger
 
 from util import get_sdcard_path, android_share
 from popuptextinput import PopupTextInput
+from kivytoast import toast
 
 import sqlite3
 import plyer
 
-from os.path import join, dirname
+from os.path import join, dirname, basename
 import json
 import functools
 import collections
@@ -151,7 +152,6 @@ class FormBuilder(Screen):
         Logger.info("softkeyboard_switch_changed {} {} {}".format(switch, value, args))
         from keyboard import set_keyboard_config
         set_keyboard_config("system" if value else "dock")
-        from kivytoast import toast
         toast("You must restart the app for the keyboard setting to take effect")
 
     def check_for_updates(self, *args):
@@ -367,21 +367,36 @@ class FormBuilder(Screen):
         gimgs = join(self.storage_path(), 'gimgs')
         try: os.mkdir(gimgs)
         except: pass
-        filename = join(gimgs, "camera.jpg")
+        try: barcode = self.barcode_widgets[0].text.strip()
+        except: barcode = ''
+        if len(barcode) == 0:
+            plyer.vibrator.vibrate(0.1)
+            toast("Barcode is empty.")
+            return
+        filename = join(gimgs, "camraw-{}.jpg".format(barcode))
         Logger.info('Image: {}'.format(filename))
-        plyer.camera.take_picture(filename, functools.partial(self.on_picture_done, entry))
+        plyer.camera.take_picture(filename, functools.partial(self.on_picture_done, barcode, entry))
 
-    def on_picture_done(self, entry, filename, *a):
+    def on_picture_done(self, barcode, entry, filename, *a):
         Logger.info('on_picture_done {} {}'.format(filename, entry))
         import Image
         im = Image.open(filename)
         Logger.info('image {} {} {}'.format(im.format, im.size, im.mode))
-        size = [ int(i) for i in entry["widget"].size ]
-        Logger.info('widget size {}'.format(size))
+        # size = [ int(i) for i in entry["widget"].size ]
+        #try: ratio = im.size[0]/float(im.size[1])
+        #except: ratio = 1.
+        #size = [ 640, int((480/im.size[1])*ratio) ]
+        size = [ 640., None ]
+        size[1] = size[0] * im.size[1] / im.size[0]
+        size = map(int, size)
+        Logger.info('resize {} => {}'.format(im.size, size))
         btn_im = im.resize(size)
-        thumbfile = join(dirname(filename), 'camera-thumb.jpg')
+        thumbfile = join(dirname(filename), 'cam-{}.jpg'.format(barcode))
         btn_im.save(thumbfile)
         Logger.info("setting background {}".format(thumbfile))
+        try: os.unlink(filename)
+        except: pass
+        entry["widget"].text = basename(thumbfile)
         def do_later1(_t1, *a):
             entry["widget"].background_normal  = ""
             def do_later2(_t2, *a):
