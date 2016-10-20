@@ -2,7 +2,7 @@ from __future__ import print_function
 
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.behaviors.focus import FocusBehavior
@@ -37,6 +37,7 @@ class XTextInput(TextInput):
 class PopupTextInput(Button):
     title = StringProperty("")
     text = StringProperty("")
+    visible = False
     def __init__(self, *a, **k):
         self.titlewidget = k.pop('titlewidget', None)
         try: self.wprevref = weakref.ref(k.pop('wprev'))
@@ -60,7 +61,7 @@ class PopupTextInput(Button):
 
     def on_next(self, *a):
         Logger.info('on_next')
-        self.popup.dismiss()
+        self.hide_popup()
         _self = self
         while _self:
             wnext = None
@@ -75,7 +76,7 @@ class PopupTextInput(Button):
 
     def on_previous(self, *a):
         Logger.info('on_previous')
-        self.popup.dismiss()
+        self.hide_popup()
         _self = self
         while _self:
             wprev = None
@@ -97,7 +98,14 @@ class PopupTextInput(Button):
 
     def show_popup(self, *a):
         self.popup.open()
+        PopupTextInput.visible = True
         Clock.schedule_once(self.show_keyboard, 0)
+
+    def hide_popup(self, *a):
+        Logger.info('hide_popup')
+        try: self.popup.dismiss()
+        except: traceback.print_exc()
+        PopupTextInput.visible = False
 
     def show_keyboard(self, *a):
         keyboard = Window.request_keyboard(self._keyboard_close, self.popup_input)
@@ -108,11 +116,6 @@ class PopupTextInput(Button):
 
     def _keyboard_close(self, *a):
         Logger.info('_keyboard_close {}'.format(a))
-
-    def hide_popup(self, *a):
-        Logger.info('hide_popup')
-        try: self.popup.dismiss()
-        except: traceback.print_exc()
 
     def on_edit_text(self, w, text, *a):
         Logger.info('on_edit_text {} {} {}'.format(w, text, a))

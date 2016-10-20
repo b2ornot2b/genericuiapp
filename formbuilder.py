@@ -273,7 +273,10 @@ class FormBuilder(Screen):
                 for field in self.config[form][tab]:
                     entry = self.config[form][tab][field]
                     if entry["lable_widget"].state != 'down':
-                        entry["widget"].text = ''
+                        try: entry["widget"].text = ''
+                        except: pass
+                        try: entry["widget"].popup_input.text=""
+                        except: pass
         return False
 
     def barcode_changed(self, i, ti, value):
