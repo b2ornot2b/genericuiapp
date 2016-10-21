@@ -97,6 +97,7 @@ class PopupTextInput(Button):
         Clock.schedule_once(self.show_popup, 0)
 
     def show_popup(self, *a):
+        self.popup_input.text = self.text
         self.popup.open()
         PopupTextInput.visible = True
         Clock.schedule_once(self.show_keyboard, 0)
