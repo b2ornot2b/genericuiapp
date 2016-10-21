@@ -171,9 +171,10 @@ class PopupTextInput(Button):
     def on_accept_suggest(self, *a):
         Logger.info('on_accept_suggest')
         self.popup_input.text += self.suggestion_text
-        self.popup_input.suggestion_text = self.suggestion_text = ""
+        self.suggestion_text = ""
         self.suggest_idx = 0
         self.suggestions = []
+        self.show_suggestion()
 
     def make_suggestions(self, value, *a):
         Logger.info('make_suggestions {}'.format(value))
@@ -190,7 +191,7 @@ class PopupTextInput(Button):
         self.suggest_idx = 0
         self.show_suggestion()
 
-    def show_suggestion(self):
+    def show_suggestion(self, *a):
         try: suggestion_text = self.suggestion_text = self.suggestions[self.suggest_idx][len(self.last_word):]
         except IndexError: suggestion_text = ''
 
