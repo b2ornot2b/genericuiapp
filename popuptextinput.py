@@ -12,6 +12,7 @@ from kivy.clock import Clock
 
 import traceback
 import weakref
+import functools
 
 class FocusButton(FocusBehavior, Button):
     pass
@@ -20,6 +21,8 @@ class XTextInput(TextInput):
     def __init__(self, *a, **k):
         self.register_event_type('on_prev')
         self.register_event_type('on_next')
+        self.register_event_type('on_next_suggest')
+        self.register_event_type('on_accept_suggest')
         super(XTextInput, self).__init__(*a, **k)
         
     def insert_text(self, substring, from_undo=False):
@@ -30,9 +33,18 @@ class XTextInput(TextInput):
         elif substring == '>':
             self.dispatch('on_next')
             return
+        elif substring == '#':
+            self.dispatch('on_accept_suggest')
+            return
+        elif substring == '^':
+            self.dispatch('on_next_suggest')
+            return
+
         return super(XTextInput, self).insert_text(substring, from_undo=from_undo)
-    def on_next(self, *a): pass
     def on_prev(self, *a): pass
+    def on_next(self, *a): pass
+    def on_next_suggest(self, *a): pass
+    def on_accept_suggest(self, *a): pass
 
 class PopupTextInput(Button):
     title = StringProperty("")
@@ -54,6 +66,8 @@ class PopupTextInput(Button):
         self.popup_input = XTextInput(text=self.text, use_bubble=True, multiline=False)
         self.popup_input.bind(on_prev=self.on_previous)
         self.popup_input.bind(on_next=self.on_next)
+        self.popup_input.bind(on_next_suggest=self.on_next_suggest)
+        self.popup_input.bind(on_accept_suggest=self.on_accept_suggest)
         self.popup_input.bind(text=self.on_edit_text)
         self.popup = Popup(title=title,
                            size_hint=(.9, None),
@@ -142,20 +156,46 @@ class PopupTextInput(Button):
         try: self.popup_label.text = value
         except: pass
         
+        #Clock.schedule_once(functools.partial(self.make_suggestions, value), 0)
         try: self.make_suggestions(value)
         except: traceback.print_exc()
+        #return False
 
-    def make_suggestions(self, value):
-        self.popup_input.suggestion_text = ""
+    def on_next_suggest(self, *a):
+        Logger.info('on_next_suggest')
+        if len(self.suggestions):
+            self.suggest_idx += 1
+            self.suggest_idx %= len(self.suggestions)
+            self.show_suggestion()
+
+    def on_accept_suggest(self, *a):
+        Logger.info('on_accept_suggest')
+        self.popup_input.text += self.suggestion_text
+        self.popup_input.suggestion_text = self.suggestion_text = ""
+        self.suggest_idx = 0
+        self.suggestions = []
+
+    def make_suggestions(self, value, *a):
+        Logger.info('make_suggestions {}'.format(value))
+        self.popup_input.suggestion_text = "?"
         if len(value) == 0:
             return 
         if value[-1] == ' ':
+            print('new word {}'.format(value))
             return
         words = value.split()
-        last_word = words[-1]
-        self.suggestions = self.get_suggestions(self.field, last_word)
+        self.last_word = words[-1]
+        self.suggestions = self.get_suggestions(self.field, self.last_word)
         Logger.info('suggestions: {}'.format(self.suggestions))
-        suggestion_text = self.suggestions[self.suggest_idx][len(last_word):]
+        self.suggest_idx = 0
+        self.show_suggestion()
+
+    def show_suggestion(self):
+        try: suggestion_text = self.suggestion_text = self.suggestions[self.suggest_idx][len(self.last_word):]
+        except IndexError: suggestion_text = ''
+
+        if len(self.suggestions) > 1:
+            suggestion_text += ' [i]{}/{}[/i]'.format(self.suggest_idx+1, len(self.suggestions))
         self.popup_input.suggestion_text = suggestion_text
 
     def get_suggestions(self, field, word):
@@ -165,5 +205,4 @@ class PopupTextInput(Button):
         sql = '''select word from autocomplete where field=? and word > ? and word < ? order by count limit 5'''
         cursor = self.conn.cursor()
         Logger.info('get_suggestions {} : {} {} => {}'.format(field, word, word_end, sql))
-        self.suggest_idx = 0
         return [ r[0] for r in cursor.execute(sql, (field, word, word_end)) ]
