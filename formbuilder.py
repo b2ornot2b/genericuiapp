@@ -321,9 +321,15 @@ class FormBuilder(Screen):
                         value = ""
                     entry["widget"].text = value
 
+    BarcodePrefixes = set([ 'HGSL', 'ISPL', 'ISPD' ])
     def on_barcode_scanned(self, barcode):
         Logger.info('FormBuilder.on_barcode_scanned {}'.format(barcode))
-        if not barcode.startswith('HG'):
+        try:
+            prefix = barcode[:4].upper()
+        except:
+            prefix = None
+
+        if prefix not in self.BarcodePrefixes:
             for entry in self.barcode_fields:
                 entry["widget"].text = barcode
             return
