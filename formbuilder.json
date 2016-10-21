@@ -141,7 +141,7 @@
             "Manufacturer Serial Number":{
                 "values":[],
                 "lock":false,
-                "type":"Text",
+                "type":"Barcode",
                 "comments":"",
                 "others":false
             },

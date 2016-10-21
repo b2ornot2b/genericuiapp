@@ -49,6 +49,7 @@ class FormBuilder(Screen):
         self.screen_manager = sm
         self.reload()
         self.barcode_widgets = [ None, None ]
+        self.barcode_fields = []
         self.create_ui()
         Clock.schedule_once(self.open_database, 0)
 
@@ -317,6 +318,10 @@ class FormBuilder(Screen):
 
     def on_barcode_scanned(self, barcode):
         Logger.info('FormBuilder.on_barcode_scanned {}'.format(barcode))
+        if not barcode.startswith('HG'):
+            for entry in self.barcode_fields:
+                entry["widget"].text = barcode
+            return
         for i in range(2):
             if self.barcode_widgets[i] is None:
                 continue
@@ -347,23 +352,27 @@ class FormBuilder(Screen):
             else:
                 lbl = Label(text=field)
             e = Label()
-            if entry["type"].lower() == "text":
+            entry_type = entry["type"].lower()
+            if entry_type in ("text", "barcode"):
                 e = PopupTextInput(titlewidget=lbl, size_hint=(1, 1), wprev=wprev)
                 if wprev:
                     wprev.set_wnext(e)
                 wprev = e
                 e.bind(text=functools.partial(self.data_changed, form, tab, field, entry))
-            elif entry["type"].lower() == "dropdown":
+            elif entry_type == "dropdown":
                 e = Spinner(size_hint=(1, None), values=entry["values"])
                 e.bind(text=functools.partial(self.data_changed, form, tab, field, entry))
-            elif entry["type"].lower() == "camera":
+            elif entry_type == "camera":
                 e = Button(text="", on_press=functools.partial(self.capture_camera, form, tab, field, entry))
+
             layout.add_widget(lbl)
             layout.add_widget(e)
             entry["root"] = root
             entry["root_title"] = tab
             entry["lable_widget"] = lbl
             entry["widget"] = e
+            if entry_type == "barcode":
+                self.barcode_fields.append(entry)
             if saved_text:
                 e.text = saved_text
                 e.disabled = True

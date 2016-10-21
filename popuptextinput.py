@@ -47,7 +47,7 @@ class PopupTextInput(Button):
         try:
             title = self.titlewidget.text
         except: title = ''
-        self.popup_input = XTextInput(text=self.text)
+        self.popup_input = XTextInput(text=self.text, use_bubble=True, multiline=False)
         self.popup_input.bind(on_prev=self.on_previous)
         self.popup_input.bind(on_next=self.on_next)
         self.popup_input.bind(text=self.on_edit_text)
@@ -129,3 +129,6 @@ class PopupTextInput(Button):
         Logger.info('on_text {}'.format(value))
         try: self.popup_label.text = value
         except: pass
+        # TODO: Suggestions
+        # self.popup_input.suggestion_text = ""
+        # self.popup_input.suggestion_text = "HELLO"
