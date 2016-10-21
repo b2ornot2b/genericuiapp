@@ -40,7 +40,9 @@ class PopupTextInput(Button):
     visible = False
     def __init__(self, *a, **k):
         self.register_event_type('on_text_done')
+        self.field = k.pop('field', None)
         self.titlewidget = k.pop('titlewidget', None)
+        self.conn = k.pop('conn', None)
         try: self.wprevref = weakref.ref(k.pop('wprev'))
         except: self.wprevref = None
         self.wnextref = None
@@ -48,6 +50,7 @@ class PopupTextInput(Button):
         try:
             title = self.titlewidget.text
         except: title = ''
+        self.suggest_idx = 0
         self.popup_input = XTextInput(text=self.text, use_bubble=True, multiline=False)
         self.popup_input.bind(on_prev=self.on_previous)
         self.popup_input.bind(on_next=self.on_next)
@@ -138,6 +141,29 @@ class PopupTextInput(Button):
         Logger.info('on_text {}'.format(value))
         try: self.popup_label.text = value
         except: pass
-        # TODO: Suggestions
-        # self.popup_input.suggestion_text = ""
-        # self.popup_input.suggestion_text = "HELLO"
+        
+        try: self.make_suggestions(value)
+        except: traceback.print_exc()
+
+    def make_suggestions(self, value):
+        self.popup_input.suggestion_text = ""
+        if len(value) == 0:
+            return 
+        if value[-1] == ' ':
+            return
+        words = value.split()
+        last_word = words[-1]
+        self.suggestions = self.get_suggestions(self.field, last_word)
+        Logger.info('suggestions: {}'.format(self.suggestions))
+        suggestion_text = self.suggestions[self.suggest_idx][len(last_word):]
+        self.popup_input.suggestion_text = suggestion_text
+
+    def get_suggestions(self, field, word):
+        if field is None or len(word)==0:
+            return []
+        word_end = word[:-1] + chr(ord(word[-1])+1)
+        sql = '''select word from autocomplete where field=? and word > ? and word < ? order by count limit 5'''
+        cursor = self.conn.cursor()
+        Logger.info('get_suggestions {} : {} {} => {}'.format(field, word, word_end, sql))
+        self.suggest_idx = 0
+        return [ r[0] for r in cursor.execute(sql, (field, word, word_end)) ]

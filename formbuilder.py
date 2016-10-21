@@ -235,6 +235,10 @@ class FormBuilder(Screen):
         c.execute('''insert or replace into entry (start, stop, data) values (?,?,?)''',
                   (start, stop, json.dumps(record)))
         self.conn.commit()
+
+        self.populate_autocomplete_from_data(record)
+        self.conn.commit()
+
         self.clear_record()
         plyer.vibrator.vibrate(.4)
 
@@ -267,7 +271,36 @@ class FormBuilder(Screen):
         self.conn = sqlite3.connect(dbpath)
         c = self.conn.cursor()
         c.execute('''create table if not exists entry (idx INTEGER PRIMARY KEY AUTOINCREMENT, start UNIQUE, stop, data)''')
+        c.execute('''create table if not exists autocomplete (field, word, count integer default 0, PRIMARY KEY(field, word))''');
         self.conn.commit()
+
+        c = self.conn.cursor()
+        count = 0
+        for row in c.execute('''select count(*) from autocomplete'''):
+            count = row[0]
+        if count is 0:
+            self.populate_autocomplete_from_entrytable()
+
+    def populate_autocomplete_from_entrytable(self):
+        Logger.info('populate_autocomplete_from_entry')
+        c = self.conn.cursor()
+        cins = self.conn.cursor()
+        for row in c.execute('''select data from entry'''):
+            try: data = json.loads(row[0])
+            except: continue
+            self.populate_autocomplete_from_data(data, cins)
+        self.conn.commit()
+       
+    def populate_autocomplete_from_data(self, data, cursor=None):
+        cursor = self.conn.cursor() if cursor is None else cursor
+        for k, v in data.items():
+            try:
+                words = v.split()
+                kw = [ (k, w.upper()) for w in words ]
+                cursor.executemany('''insert or ignore into autocomplete(field, word) values (?,?)''', kw)
+                cursor.executemany('''update autocomplete set count=count+1 where field=? and word=?''', kw)
+            except:
+                traceback.print_exc()
 
     def clear_record(self, *args):
         Logger.info('clear_record')
@@ -365,7 +398,7 @@ class FormBuilder(Screen):
             e = Label()
             entry_type = entry["type"].lower()
             if entry_type in ("text", "barcode"):
-                e = PopupTextInput(titlewidget=lbl, size_hint=(1, 1), wprev=wprev)
+                e = PopupTextInput(titlewidget=lbl, size_hint=(1, 1), wprev=wprev, conn=self.conn, field=entry['reckey'])
                 if wprev:
                     wprev.set_wnext(e)
                 wprev = e
