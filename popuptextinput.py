@@ -39,6 +39,7 @@ class PopupTextInput(Button):
     text = StringProperty("")
     visible = False
     def __init__(self, *a, **k):
+        self.register_event_type('on_text_done')
         self.titlewidget = k.pop('titlewidget', None)
         try: self.wprevref = weakref.ref(k.pop('wprev'))
         except: self.wprevref = None
@@ -55,6 +56,7 @@ class PopupTextInput(Button):
                            size_hint=(.9, None),
                            height=300,
                            content=self.popup_input)
+        self.popup.bind(on_dismiss=self.on_popup_closed)
 
     def set_wnext(self, wnext):
         self.wnextref = weakref.ref(wnext)
@@ -107,6 +109,12 @@ class PopupTextInput(Button):
         try: self.popup.dismiss()
         except: traceback.print_exc()
         PopupTextInput.visible = False
+
+    def on_text_done(self, *a): pass
+
+    def on_popup_closed(self, *a):
+        Logger.info('on_popup_closed')
+        self.dispatch('on_text_done', self.popup_input, self.popup_input.text)
 
     def show_keyboard(self, *a):
         keyboard = Window.request_keyboard(self._keyboard_close, self.popup_input)

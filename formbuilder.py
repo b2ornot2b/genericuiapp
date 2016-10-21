@@ -205,6 +205,7 @@ class FormBuilder(Screen):
             self.barcode_widgets[i] = e = PopupTextInput(text="", titlewidget=lbl, size_hint=(1, 1))
             #e.bind(focus=functools.partial(self.barcode_changed, i))
             layout.add_widget(e)
+        self.barcode_widgets[0].bind(on_text_done=self.on_manual_barcode_text_done)
 
         self.clear_btn = Button(text="Clear", size_hint=(1,1,))
         self.clear_btn.bind(on_press=self.clear_record)
@@ -215,6 +216,10 @@ class FormBuilder(Screen):
         layout.add_widget(self.save_btn)
 
         root.add_widget(layout)
+
+    def on_manual_barcode_text_done(self, ti, value, *a):
+        Logger.info('on_manual_barcode_text_done {} {} {}'.format(ti, value, a))
+        self.barcode_changed(0, ti, False)
 
     def save_record(self, *args):
         Logger.info('save_record')
