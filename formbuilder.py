@@ -35,11 +35,15 @@ import os
 from pprint import pprint
 
 class FormBuilder(Screen):
+    StorageDirectory = 'ascan'
     @classmethod
-    def storage_path(cls, *a):
-        path = join(get_sdcard_path(), 'ascan')
-        try: os.mkdir(path)
+    def storage_path(cls, *paths, **kwargs):
+        filename = kwargs.get('filename')
+        path = join(get_sdcard_path(), cls.StorageDirectory, *paths)
+        try: os.makedirs(path)
         except: pass
+        if filename:
+            path = join(path, filename)
         return path
 
     def __init__(self, sm, *a, **k):
@@ -98,12 +102,10 @@ class FormBuilder(Screen):
     def share_data(self, *args):
         Logger.info('share_data')
         cursor = self.conn.cursor()
-        print(cursor)
-
         n = time.localtime()
-        csvpath = join(self.storage_path(), 'entries-{}{}{}-{}{}.csv'.format(n.tm_year, n.tm_mon, n.tm_mday, n.tm_hour, n.tm_min))
+        csvpath = self.storage_path('csv', filename='entries-{}{}{}-{}{}.csv'.format(n.tm_year, n.tm_mon, n.tm_mday, n.tm_hour, n.tm_min))
         Logger.info('open_database {}'.format(csvpath))
-        pretty_fields = json.load(open('fields.json'))
+        pretty_fields = json.load(open(self.storage_path(filename='fields.json')))
         fields = sorted(pretty_fields.values())
         fields.insert(0, 'Barcode')
         fields.append('Timestamp')
@@ -270,7 +272,7 @@ class FormBuilder(Screen):
         return record
 
     def open_database(self, *args):
-        dbpath = join(self.storage_path(), 'entries.db')
+        dbpath = self.storage_path(filename='entries.db')
         Logger.info('open_database {}'.format(dbpath))
         self.conn = sqlite3.connect(dbpath)
         c = self.conn.cursor()
@@ -381,10 +383,10 @@ class FormBuilder(Screen):
     def create_form_entries(self, root, form, tab, wprev=None):
         Logger.info('create_form_entries {} {}'.format(form, tab))
         layout = GridLayout(cols=2, size_hint=(1,1))
-        try: saved_record = json.load(open('lockedfields.json'))
+        try: saved_record = json.load(open(self.storage_path(filename='lockedfields.json')))
         except: saved_record = {}
         def xform(k):
-            return ''.join([ c for c in k if c.isalnum() ])
+            return u''.join([ c for c in k if c.isalnum() ])
         for field in self.config[form][tab]:
             entry = self.config[form][tab][field]
             entry['reckey'] = xform('{}{}'.format(tab, field))
@@ -429,16 +431,13 @@ class FormBuilder(Screen):
 
     def capture_camera(self, form, tab, field, entry, *args):
         Logger.info("capture_camera {} {}".format(tab, field))
-        gimgs = join(self.storage_path(), 'gimgs')
-        try: os.mkdir(gimgs)
-        except: pass
         try: barcode = self.barcode_widgets[0].text.strip()
         except: barcode = ''
         if len(barcode) == 0:
             plyer.vibrator.vibrate(0.1)
             toast("Barcode is empty.")
             return
-        filename = join(gimgs, "camraw-{}.jpg".format(barcode))
+        filename = self.storage_path('rawimgs', filename="camraw-{}.jpg".format(barcode))
         Logger.info('Image: {}'.format(filename))
         plyer.camera.take_picture(filename, functools.partial(self.on_picture_done, barcode, entry))
 
@@ -456,7 +455,7 @@ class FormBuilder(Screen):
         size = map(int, size)
         Logger.info('resize {} => {}'.format(im.size, size))
         btn_im = im.resize(size)
-        thumbfile = join(dirname(filename), 'cam-{}.jpg'.format(barcode))
+        thumbfile = self.storage_path('imgs', filename='cam-{}.jpg'.format(barcode))
         btn_im.save(thumbfile)
         Logger.info("setting background {}".format(thumbfile))
         try: os.unlink(filename)
@@ -474,7 +473,6 @@ class FormBuilder(Screen):
         self.do_data_changed(form, tab, field, entry, *args)
 
     def do_data_changed(self, form, tab, field, entry, *args):
-        #Logger.info("do_data_changed {} {} {} {} {}".format(form, tab, field, entry, args))
         texts = ( e["widget"].text for field,e in self.config[form][tab].items() if e.has_key("widget"))
         texts = ( t for t in texts if len(t) )
         texts = u' '.join(texts)
@@ -486,15 +484,17 @@ class FormBuilder(Screen):
         entry["widget"].disabled = entry["lable_widget"].state == "down"
         if entry["widget"].disabled:
             record = self.get_record_dict(only_locked_fields=True)
-            json.dump(record, open('lockedfields.json', 'w'))
+            json.dump(record, open(self.storage_path(filename='lockedfields.json'), 'w'))
 
     @classmethod
     def load(cls, filename=None):
         if filename is None:
-            filename = 'formbuilder.csv'
+            filename = self.storage_path(filename='formbuilder.csv')
+            if os.path.exists(filename) is False:
+                filename = 'formbuilder.csv'
 
         def xform(k):
-            return ''.join([ c for c in k if c.isalnum() ])
+            return u''.join([ c for c in k if c.isalnum() ])
         with open(filename) as csvfile:
             import csv
             fb = csv.reader(csvfile)
@@ -518,7 +518,9 @@ class FormBuilder(Screen):
                 field["others"] = "Others" in field["values"]
 
                 pprint(forms)
-        json.dump(forms, open('formbuilder.json', 'w'),
+        if filename != 'formbuilder.csv':
+            filename = self.storage_path(filename='formbuilder.json')
+        json.dump(forms, open(filename, 'w'),
                   sort_keys=False, indent=4, separators=(',', ':'))
                     
 if __name__ == '__main__':
