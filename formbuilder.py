@@ -186,7 +186,7 @@ class FormBuilder(Screen):
                               background_normal="atlas://data/images/defaulttheme/modalview-background")
             wprev = self.create_form_entries(item, form, tab, wprev)
             accordion.add_widget(item)
-        try: json.dump(self.pretty_fields, open('fields.json', 'w'))
+        try: json.dump(self.pretty_fields, open(self.storage_path(filename='fields.json'), 'w'))
         except: pass
             
         barcode_item = AccordionItem(title="Barcode",
