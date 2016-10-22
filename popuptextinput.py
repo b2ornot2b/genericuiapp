@@ -4,6 +4,7 @@ from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.label import Label
+from kivy.core.text.markup import MarkupLabel
 from kivy.uix.button import Button
 from kivy.uix.behaviors.focus import FocusBehavior
 from kivy.uix.popup import Popup
@@ -45,6 +46,29 @@ class XTextInput(TextInput):
     def on_next(self, *a): pass
     def on_next_suggest(self, *a): pass
     def on_accept_suggest(self, *a): pass
+
+    def UNUSED_on_suggestion_text(self, instance, value):
+        Logger.info('on_suggestion_text {} {}'.format(instance, value))
+        cursor_pos = self.cursor_pos
+        txt = self._lines[self.cursor_row]
+        cr = self.cursor_row
+        kw = self._get_line_options()
+        rct = self._lines_rects[cr]
+
+        lbl = text = None
+        if value:
+            lbl = MarkupLabel(
+                text=txt + "[color=#0000ff][b]{}[/b][/color]".format(value), **kw)
+        else:
+            lbl = Label(**kw)
+            text = txt
+
+        try: lbl.refresh()
+        except: traceback.print_exc()
+
+        self._lines_labels[cr] = lbl.texture
+        rct.size = lbl.size
+        self._update_graphics()
 
 class PopupTextInput(Button):
     title = StringProperty("")
@@ -156,29 +180,71 @@ class PopupTextInput(Button):
         try: self.popup_label.text = value
         except: pass
         
-        #Clock.schedule_once(functools.partial(self.make_suggestions, value), 0)
-        try: self.make_suggestions(value)
-        except: traceback.print_exc()
-        #return False
+        #Clock.schedule_once(functools.partial(self.make_suggestions, value), 1)
+        #return True
+        #try: self.make_suggestions(value)
+        #except: traceback.print_exc()
 
+        try: self.do_suggestions(value)
+        except: traceback.print_exc()
+
+    def do_suggestions(self, value):
+        if len(value) == 0:
+            return 
+        if value[-1] == ' ':
+            print('new word {}'.format(value))
+            return
+        words = value.split()
+        self.last_word = words[-1]
+        self.clear_suggestions()
+        self.suggestions = self.get_suggestions(self.field, self.last_word)
+        print('suggestions {}'.format(self.suggestions))
+
+        if len(self.suggestions):
+            self._update_suggestion_text()
+
+    def _update_suggestion_text(self):
+        if len(self.popup_input._lines) is 0:
+            print('_update_suggestion_text _lines is 0')
+            return
+        try: text = self.suggestions[self.suggest_idx][len(self.last_word):]
+        except: text = ""
+        self.suggestion_text = text
+
+        if len(self.suggestions) > 1:
+            text += ' [u][i]{}/{}[/i][/u]'.format(self.suggest_idx+1, len(self.suggestions))
+
+        self.popup_input.suggestion_text = ""
+        if len(text):
+            self.popup_input.suggestion_text = text
+        return
+ 
     def on_next_suggest(self, *a):
         Logger.info('on_next_suggest')
         if len(self.suggestions):
             self.suggest_idx += 1
             self.suggest_idx %= len(self.suggestions)
-            self.show_suggestion()
+            self._update_suggestion_text()
 
     def on_accept_suggest(self, *a):
         Logger.info('on_accept_suggest')
-        self.popup_input.text += self.suggestion_text
+        if len(self.suggestion_text):
+            self.popup_input.text += self.suggestion_text + ' '
+        #self.clear_suggestions()
+        #self._update_suggestion_text()
+
+    def clear_suggestions(self):
         self.suggestion_text = ""
         self.suggest_idx = 0
         self.suggestions = []
-        self.show_suggestion()
 
     def make_suggestions(self, value, *a):
         Logger.info('make_suggestions {}'.format(value))
-        self.popup_input.suggestion_text = "?"
+        self.popup_input.suggestion_text = ""
+        import random
+        self.popup_input.suggestion_text = '{}'.format(random.random())
+        return
+        #self.popup_input._trigger_update_graphics()
         if len(value) == 0:
             return 
         if value[-1] == ' ':
@@ -197,7 +263,10 @@ class PopupTextInput(Button):
 
         if len(self.suggestions) > 1:
             suggestion_text += ' [i]{}/{}[/i]'.format(self.suggest_idx+1, len(self.suggestions))
+        self.popup_input.suggestion_text = ''
         self.popup_input.suggestion_text = suggestion_text
+
+        #Clock.schedule_once(self.popup_input._trigger_update_graphics, 0)
 
     def get_suggestions(self, field, word):
         if field is None or len(word)==0:
