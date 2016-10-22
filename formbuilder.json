@@ -95,6 +95,13 @@
                 "type":"Dropdown",
                 "comments":"",
                 "others":false
+            },
+            "Department":{
+                "values":[],
+                "lock":true,
+                "type":"Text",
+                "comments":"",
+                "others":false
             }
         },
         "Asset":{

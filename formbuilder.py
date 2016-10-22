@@ -23,6 +23,7 @@ import sqlite3
 import plyer
 
 from os.path import join, dirname, basename
+import datetime
 import json
 import functools
 import collections
@@ -105,7 +106,9 @@ class FormBuilder(Screen):
         pretty_fields = json.load(open('fields.json'))
         fields = sorted(pretty_fields.values())
         fields.insert(0, 'Barcode')
+        fields.append('Timestamp')
         pretty_fields['barcode'] = 'Barcode'
+        pretty_fields['timestamp'] = 'Timestamp'
         with open(csvpath, 'w') as csvfd:
             writer = csv.DictWriter(csvfd, fields)
             writer.writeheader()
@@ -224,6 +227,7 @@ class FormBuilder(Screen):
     def save_record(self, *args):
         Logger.info('save_record')
         record = self.get_record_dict()
+        record['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         start = self.barcode_widgets[0].text.strip()
         stop = self.barcode_widgets[1].text.strip()
         import csv
