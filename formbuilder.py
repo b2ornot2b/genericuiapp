@@ -36,7 +36,15 @@ import shutil
 from pprint import pprint
 
 class FormBuilder(Screen):
-    StorageDirectory = 'ascan'
+    StorageDirectory = 'nforms'
+    OldStorageDirectory = 'ascan'
+
+    __oldspath = join(get_sdcard_path(), OldStorageDirectory)
+    __newspath = join(get_sdcard_path(), StorageDirectory)
+    if exists(__newspath) is False and exists(__oldspath):
+        print('found old storage path {}; renaming to {}'.format(__oldspath, __newspath))
+        os.rename(__oldspath, __newspath)
+
     @classmethod
     def storage_path(cls, *paths, **kwargs):
         filename = kwargs.get('filename')

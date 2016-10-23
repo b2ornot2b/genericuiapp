@@ -22,7 +22,8 @@ if __name__ in ('__main__', '__android__'):
     # threading.Thread(target=ishell.listen).start()
     try:
         shared_formbuilder_csv = get_android_shared_file()
-        print('shared_formbuilder_csv {}'.format(len(shared_formbuilder_csv)))
+        if shared_formbuilder_csv:
+            print('shared_formbuilder_csv {}'.format(len(shared_formbuilder_csv)))
     except:
         shared_formbuilder_csv = None
         traceback.print_exc()
