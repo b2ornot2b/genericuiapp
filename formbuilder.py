@@ -60,7 +60,6 @@ class FormBuilder(Screen):
             print('FormBuilder writing csv {} bytes...'.format(len(formbuilder_csv)))
             open(self.storage_path(filename='formbuilder.csv'), 'wb').write(formbuilder_csv)
             print('FormBuilder writing csv {} bytes done.'.format(len(formbuilder_csv)))
-             #shutil.copyfileobj(open(formbuilder_csv), open(self.storage_path(filename='formbuilder.csv'), 'w'))
         self.fieldspec_json_filename = FormBuilder.load_fieldspec()
 
         super(FormBuilder, self).__init__(*a, **k)

@@ -61,7 +61,6 @@ def get_shared_file():
     import android
     import android.activity
 
-    # test for an intent passed to us
     PythonActivity = autoclass('org.renpy.android.PythonActivity')
     Intent = autoclass('android.content.Intent')
     Uri = autoclass('android.net.Uri')
@@ -81,9 +80,9 @@ def get_shared_file():
         s = ''
         while input_stream.available() > 0:
             b = input_stream.read()
-            # print('# {} - .{}.   {}'.format(type(b), b, s))
             s += chr(b)
+        print('get_shared_file got {} bytes'.format(len(s)))
     except:
         traceback.print_exc()
-    print('get_shared_file got {} bytes'.format(len(s)))
+        s = None
     return s
