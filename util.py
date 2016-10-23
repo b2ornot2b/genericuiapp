@@ -54,7 +54,7 @@ def android_share(to=None, subject=None, body=None, attachment=None):
     currentActivity.startActivity(intent)
 
 
-def get_shared_file():
+def get_android_shared_file():
     print('get_shared_file')
     from jnius import cast
     from jnius import autoclass
