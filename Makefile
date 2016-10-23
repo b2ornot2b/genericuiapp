@@ -1,5 +1,5 @@
 SHELL=/bin/bash
-APK := GenericUI-0.1-debug.apk
+APK := NiftyForms-1.0-debug.apk
 UPDATEPK := gupdate.pk
 
 SRCS := $(wildcard *.py)
