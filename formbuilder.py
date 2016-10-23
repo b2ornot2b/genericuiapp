@@ -57,7 +57,8 @@ class FormBuilder(Screen):
     def __init__(self, sm, *a, **k):
         formbuilder_csv = k.pop('formbuilder_csv', None)
         if formbuilder_csv:
-            shutil.copyfileobj(open(formbuilder_csv), open(self.storage_path(filename='formbuilder.csv'), 'w'))
+             open(self.storage_path(filename='formbuilder.csv'), 'wb').write(formbuilder_csv)
+             #shutil.copyfileobj(open(formbuilder_csv), open(self.storage_path(filename='formbuilder.csv'), 'w'))
         self.fieldspec_json_filename = FormBuilder.load_fieldspec()
 
         super(FormBuilder, self).__init__(*a, **k)
@@ -501,13 +502,14 @@ class FormBuilder(Screen):
 
     @classmethod
     def csv2json(cls, filename=None, jsonfilename=None):
-        Logger.info('formbuilder.load {}'.format(filename))
+        Logger.info('formbuilder.csv2json {}'.format(filename))
         if filename is None:
             filename = cls.storage_path(filename='formbuilder.csv')
             jsonfilename = cls.storage_path(filename='formbuilder.json')
             if not exists(filename):
                 filename = 'formbuilder.csv'
                 jsonfilename = 'formbuild.json'
+        Logger.info('formbuilder.csv2json csv={} json={}'.format(filename, jsonfilename))
 
         def xform(k):
             return u''.join([ c for c in k if c.isalnum() ])

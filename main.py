@@ -24,5 +24,5 @@ if __name__ in ('__main__', '__android__'):
     except:
         shared_formbuilder_csv = None
         traceback.print_exc()
-    print('shared_formbuilder_csv {}'.format(shared_formbuilder_csv))
+    # print('shared_formbuilder_csv {}'.format(len(shared_formbuilder_csv)))
     GenericUIApp(formbuilder_csv=shared_formbuilder_csv).run()

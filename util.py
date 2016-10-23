@@ -60,7 +60,7 @@ def get_shared_file():
     from jnius import autoclass
     import android
     import android.activity
- 
+
     # test for an intent passed to us
     PythonActivity = autoclass('org.renpy.android.PythonActivity')
     Intent = autoclass('android.content.Intent')
@@ -69,9 +69,11 @@ def get_shared_file():
     intent = activity.getIntent()
     intent_data = intent.getData()
     print('get_shared_file activity={} intent={} intent_data={}'.format(activity, intent, intent_data))
+    s = None
     try:
         file_uri = intent.getParcelableExtra(Intent.EXTRA_STREAM)
         print('file_uri {}'.format(file_uri))
+        if file_uri is None: return None
         uri = cast('android.net.Uri', file_uri)
         print('uri {}'.format(uri))
         input_stream = activity.getContentResolver().openInputStream(uri)
@@ -79,9 +81,9 @@ def get_shared_file():
         s = ''
         while input_stream.available() > 0:
             b = input_stream.read()
-            print('# {} - .{}.   {}'.format(type(b), b, s))
-            s += b
-    except AttributeError:
-        file_uri = None
-    print('get_shared_file file_uri={}'.format(file_uri))
-    return file_uri
+            # print('# {} - .{}.   {}'.format(type(b), b, s))
+            s += chr(b)
+    except:
+        traceback.print_exc()
+    print('get_shared_file got {} bytes'.format(len(s)))
+    return s
