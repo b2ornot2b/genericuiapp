@@ -23,6 +23,7 @@ import functools
 class GenericUIApp(App):
     def __init__(self, *a, **k):
         self.formbuilder_csv = k.pop('formbuilder_csv', None)
+        print('GenericUIApp formbuilder_csv={}'.format(type(self.formbuilder_csv)))
         super(GenericUIApp, self).__init__(*a, **k)
     def build(self):
         # webdebugger_start(None, self)
