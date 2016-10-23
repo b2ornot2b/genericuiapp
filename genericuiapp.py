@@ -21,9 +21,12 @@ from util import run_on_new_thread
 import functools
 
 class GenericUIApp(App):
+    def __init__(self, *a, **k):
+        self.formbuilder_csv = k.pop('formbuilder_csv', None)
+        super(GenericUIApp, self).__init__(*a, **k)
     def build(self):
         # webdebugger_start(None, self)
-        self.__base_widget = GenericUI(info="value")
+        self.__base_widget = GenericUI(info="value", formbuilder_csv=self.formbuilder_csv)
         return self.__base_widget
 
     def on_start(self):

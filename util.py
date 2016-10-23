@@ -54,3 +54,19 @@ def android_share(to=None, subject=None, body=None, attachment=None):
     currentActivity.startActivity(intent)
 
 
+def get_shared_file():
+    from jnius import cast
+    from jnius import autoclass
+    import android
+    import android.activity
+ 
+    # test for an intent passed to us
+    PythonActivity = autoclass('org.renpy.android.PythonActivity')
+    activity = PythonActivity.mActivity
+    intent = activity.getIntent()
+    intent_data = intent.getData()
+    try:
+        file_uri= intent_data.toString()
+    except AttributeError:
+        file_uri = None
+    return file_uri

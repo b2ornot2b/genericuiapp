@@ -15,7 +15,13 @@ if __name__ in ('__main__', '__android__'):
 
 import threading
 import ishell
+import traceback
 from genericuiapp import GenericUIApp
+from util import get_shared_file
 if __name__ in ('__main__', '__android__'):
     # threading.Thread(target=ishell.listen).start()
-    GenericUIApp().run()
+    try: shared_formbuilder_csv = get_shared_file()
+    except:
+        shared_formbuilder_csv = None
+        traceback.print_exc()
+    GenericUIApp(formbuilder_csv=shared_formbuilder_csv).run()

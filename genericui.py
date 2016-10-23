@@ -18,6 +18,7 @@ from formbuilder import FormBuilder
 
 class GenericUI(ScreenManager):
     def __init__(self, *a, **k):
+        self.formbuilder_csv = k.pop('formbuilder_csv', None)
         super(GenericUI, self).__init__(*a, **k)
         self.bind(on_barcode_scan=self.on_barcode_scan)
         self.create_ui()

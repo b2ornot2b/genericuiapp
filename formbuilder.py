@@ -22,7 +22,7 @@ from kivytoast import toast
 import sqlite3
 import plyer
 
-from os.path import join, dirname, basename
+from os.path import join, dirname, basename, exists
 import datetime
 import json
 import functools
@@ -32,6 +32,7 @@ import re
 import csv
 import time
 import os
+import shutil
 from pprint import pprint
 
 class FormBuilder(Screen):
@@ -46,7 +47,19 @@ class FormBuilder(Screen):
             path = join(path, filename)
         return path
 
+    @classmethod
+    def load_fieldspec(cls):
+        try: return cls.csv2json()
+        except:
+            exc = traceback.format_exc()
+            print(exc)
+
     def __init__(self, sm, *a, **k):
+        formbuilder_csv = k.pop('formbuilder_csv', None)
+        if formbuilder_csv:
+            shutil.copyfileobj(open(formbuilder_csv), open(self.storage_path(filename='formbuilder.csv'), 'w'))
+        self.fieldspec_json_filename = FormBuilder.load_fieldspec()
+
         super(FormBuilder, self).__init__(*a, **k)
         self.last_back_at = time.time()
         self.forms = {}
@@ -167,7 +180,7 @@ class FormBuilder(Screen):
         run_on_new_thread(update)
 
     def reload(self):
-        self.config = json.load(open('formbuilder.json'), object_pairs_hook=collections.OrderedDict)
+        self.config = json.load(open(self.fieldspec_json_filename), object_pairs_hook=collections.OrderedDict)
 
     def main_btn_pressed(self, form, *args):
         Logger.info('main_btn_pressed {} {}'.format(form, args))
@@ -487,11 +500,14 @@ class FormBuilder(Screen):
             json.dump(record, open(self.storage_path(filename='lockedfields.json'), 'w'))
 
     @classmethod
-    def load(cls, filename=None):
+    def csv2json(cls, filename=None, jsonfilename=None):
+        Logger.info('formbuilder.load {}'.format(filename))
         if filename is None:
-            filename = self.storage_path(filename='formbuilder.csv')
-            if os.path.exists(filename) is False:
+            filename = cls.storage_path(filename='formbuilder.csv')
+            jsonfilename = cls.storage_path(filename='formbuilder.json')
+            if not exists(filename):
                 filename = 'formbuilder.csv'
+                jsonfilename = 'formbuild.json'
 
         def xform(k):
             return u''.join([ c for c in k if c.isalnum() ])
@@ -518,10 +534,9 @@ class FormBuilder(Screen):
                 field["others"] = "Others" in field["values"]
 
                 pprint(forms)
-        if filename != 'formbuilder.csv':
-            filename = self.storage_path(filename='formbuilder.json')
-        json.dump(forms, open(filename, 'w'),
+        json.dump(forms, open(jsonfilename, 'w'),
                   sort_keys=False, indent=4, separators=(',', ':'))
+        return jsonfilename
                     
 if __name__ == '__main__':
     FormBuilder.load()
