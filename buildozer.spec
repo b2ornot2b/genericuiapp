@@ -1,10 +1,10 @@
 [app]
 
 # (str) Title of your application
-title = Generic UI
+title = Nifty Forms
 
 # (str) Package name
-package.name = GenericUI
+package.name = NiftyForms
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.b2ornot2b
@@ -30,7 +30,7 @@ source.include_exts = py,png,jpg,kv,atlas,tgz,md5,json,txt,ini,csv
 #source.exclude_patterns = license,images/*/*.jpg
 
 # (str) Application versioning (method 1)
-version = 0.1
+version = 1.0
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]
@@ -54,7 +54,7 @@ requirements = sqlite3,kivy==master,datetime,Flask,plyer,apsw,requests,leveldb,p
 #presplash.filename = %(source.dir)s/data/presplash.png
 
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = %(source.dir)s/icon.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = all
