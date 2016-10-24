@@ -82,6 +82,9 @@ class PopupTextInput(Button):
         try: self.wprevref = weakref.ref(k.pop('wprev'))
         except: self.wprevref = None
         self.wnextref = None
+
+        self.clear_suggestions()
+        
         super(PopupTextInput, self).__init__(*a, **k)
         try:
             title = self.titlewidget.text
