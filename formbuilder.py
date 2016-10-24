@@ -258,7 +258,24 @@ class FormBuilder(Screen):
         import csv
         if len(start) is 0:
             plyer.vibrator.vibrate(0.1)
+            toast("Barcode is empty.")
             return
+        if len(start) < 5:
+            plyer.vibrator.vibrate(0.1)
+            toast("Barcode is too short.")
+            return
+        if start[4] != '-':
+            plyer.vibrator.vibrate(0.1)
+            toast("Barcode does not have '-'.")
+            return
+        if start[0:4] not in self.BarcodePrefixes:
+            plyer.vibrator.vibrate(0.1)
+            toast("Barcode prefix is not one of {}".format(','.join(self.BarcodePrefixes)))
+            return
+
+        #if len(stop) and not ( (len(stop) > 5) and start[4] == '-' and start[0:4] in self.BarcodePrefixes ):
+        #    toast("Barcode stop '{}' is invalid".format(stop))
+        #    return
 
         c = self.conn.cursor()
         c.execute('''insert or replace into entry (start, stop, data) values (?,?,?)''',
